@@ -6,7 +6,7 @@ import (
 )
 
 type Emoji struct {
-	codepoints  string
+	Codepoints  string
 	annotations []string
 	name        string
 }
@@ -19,8 +19,9 @@ func ParseEmojis(e string) []Emoji {
 
 	for scanner.Scan() {
 		line := scanner.Text()
+		line = strings.TrimSpace(line)
 
-		if strings.Contains(line, "#") {
+		if strings.Index(line, "#") == 0 {
 			continue
 		}
 	}
