@@ -1,7 +1,12 @@
 package main
 
-import "github.com/brandonau24/emoji-data-generator/parsers"
+import (
+	"github.com/brandonau24/emoji-data-generator/parsers"
+	"github.com/brandonau24/emoji-data-generator/readers"
+)
 
 func main() {
-	parsers.ParseEmojis()
+	emojiDataFile := readers.ReadEmojiDataFile()
+
+	parsers.ParseEmojis(emojiDataFile)
 }

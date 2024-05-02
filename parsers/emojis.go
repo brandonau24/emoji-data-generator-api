@@ -3,8 +3,7 @@ package parsers
 import (
 	"bufio"
 	"fmt"
-	"os"
-	"path"
+	"strings"
 )
 
 type Emoji struct {
@@ -15,18 +14,10 @@ type Emoji struct {
 
 const EMOJIS_FILE_PATH = "unicode/v15.1/emojis.txt"
 
-func ParseEmojis() []Emoji {
+func ParseEmojis(e string) []Emoji {
 	emojis := make([]Emoji, 3773) // Number of fully-qualified emojis
 
-	workingDir, _ := os.Getwd()
-	filePath := path.Join(workingDir, EMOJIS_FILE_PATH)
-	emojiFile, err := os.Open(filePath)
-
-	if err != nil {
-		panic(fmt.Sprintf("cannot open file: %v", filePath))
-	}
-
-	scanner := bufio.NewScanner(emojiFile)
+	scanner := bufio.NewScanner(strings.NewReader(e))
 
 	for scanner.Scan() {
 		line := scanner.Text()
