@@ -23,7 +23,14 @@ func ParseEmojis(e string) []Emoji {
 
 		if strings.Index(line, "#") == 0 {
 			continue
+		} else {
+			endOfCodepoints := strings.Index(line, ";")
+			codepoints := line[:endOfCodepoints]
+			emojis = append(emojis, Emoji{
+				Codepoints: strings.TrimSpace(codepoints),
+			})
 		}
+
 	}
 
 	return emojis
