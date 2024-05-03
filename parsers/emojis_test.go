@@ -42,3 +42,13 @@ func TestParseEmojisSetsName(t *testing.T) {
 		t.Fatalf("Failed to parse codepoint. Received %v, expected grinning face", emoji.Name)
 	}
 }
+
+func TestParseEmojiSelectsFullyQualifiedEmojis(t *testing.T) {
+	emojis := parsers.ParseEmojis(`F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
+1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
+2620                                                   ; unqualified         # ☠ E1.0 skull and crossbones
+`)
+	if len(emojis) != 1 {
+		t.Fatalf("Other emojis that are not fully qualified have been parsed")
+	}
+}

@@ -14,6 +14,7 @@ type Emoji struct {
 }
 
 const EMOJIS_FILE_PATH = "unicode/v15.1/emojis.txt"
+const FULLY_QUALIFIED = "fully-qualified"
 
 func ParseEmojis(e string) []Emoji {
 	emojis := make([]Emoji, 0)
@@ -27,6 +28,10 @@ func ParseEmojis(e string) []Emoji {
 			continue
 		} else {
 			emojiFields := strings.Fields(line)
+
+			if slices.Index(emojiFields, FULLY_QUALIFIED) == -1 {
+				continue
+			}
 
 			semicolonIndex := slices.Index(emojiFields, ";")
 			codepoints := emojiFields[0:semicolonIndex]
