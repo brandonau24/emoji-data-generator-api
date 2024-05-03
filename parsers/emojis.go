@@ -2,6 +2,7 @@ package parsers
 
 import (
 	"bufio"
+	"regexp"
 	"slices"
 	"strings"
 )
@@ -9,7 +10,7 @@ import (
 type Emoji struct {
 	Codepoints  string
 	annotations []string
-	name        string
+	Name        string
 }
 
 const EMOJIS_FILE_PATH = "unicode/v15.1/emojis.txt"
@@ -26,11 +27,20 @@ func ParseEmojis(e string) []Emoji {
 			continue
 		} else {
 			emojiFields := strings.Fields(line)
-			semicolonIndex := slices.Index(emojiFields, ";")
 
+			semicolonIndex := slices.Index(emojiFields, ";")
 			codepoints := emojiFields[0:semicolonIndex]
+
+			emojiVersionRegex := regexp.MustCompile(`E\d+\.\d+`)
+			emojiVersionIndex := slices.IndexFunc(emojiFields, func(s string) bool {
+				return emojiVersionRegex.MatchString(s)
+			})
+
+			name := emojiFields[(emojiVersionIndex + 1):]
+
 			emojis = append(emojis, Emoji{
 				Codepoints: strings.Join(codepoints, " "),
+				Name:       strings.Join(name, " "),
 			})
 		}
 

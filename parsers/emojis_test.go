@@ -33,3 +33,12 @@ func TestParseEmojisSetsCodepoints(t *testing.T) {
 		t.Fatalf("Failed to parse codepoint. Received %v, expected 1F62E 200D 1F4A8", emoji.Codepoints)
 	}
 }
+
+func TestParseEmojisSetsName(t *testing.T) {
+	emojis := parsers.ParseEmojis("1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face")
+	emoji := emojis[0]
+
+	if emoji.Name != "grinning face" {
+		t.Fatalf("Failed to parse codepoint. Received %v, expected grinning face", emoji.Name)
+	}
+}
