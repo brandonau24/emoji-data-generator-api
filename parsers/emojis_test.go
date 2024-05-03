@@ -24,3 +24,12 @@ func TestParseEmojisSetsCodepoint(t *testing.T) {
 		t.Fatalf("Failed to parse codepoint. Received %v, expected 1F600", emoji.Codepoints)
 	}
 }
+
+func TestParseEmojisSetsCodepoints(t *testing.T) {
+	emojis := parsers.ParseEmojis("1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling")
+	emoji := emojis[0]
+
+	if emoji.Codepoints != "1F62E 200D 1F4A8" {
+		t.Fatalf("Failed to parse codepoint. Received %v, expected 1F62E 200D 1F4A8", emoji.Codepoints)
+	}
+}

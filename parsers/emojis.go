@@ -2,6 +2,7 @@ package parsers
 
 import (
 	"bufio"
+	"slices"
 	"strings"
 )
 
@@ -24,10 +25,12 @@ func ParseEmojis(e string) []Emoji {
 		if strings.Index(line, "#") == 0 {
 			continue
 		} else {
-			endOfCodepoints := strings.Index(line, ";")
-			codepoints := line[:endOfCodepoints]
+			emojiFields := strings.Fields(line)
+			semicolonIndex := slices.Index(emojiFields, ";")
+
+			codepoints := emojiFields[0:semicolonIndex]
 			emojis = append(emojis, Emoji{
-				Codepoints: strings.TrimSpace(codepoints),
+				Codepoints: strings.Join(codepoints, " "),
 			})
 		}
 
