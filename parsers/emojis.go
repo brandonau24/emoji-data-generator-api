@@ -16,8 +16,10 @@ type Emoji struct {
 const EMOJIS_FILE_PATH = "unicode/v15.1/emojis.txt"
 const FULLY_QUALIFIED = "fully-qualified"
 
-func ParseEmojis(e string) []Emoji {
-	emojis := make([]Emoji, 0)
+func ParseEmojis(e string) map[string][]Emoji {
+	var currentGroup string
+
+	emojis := make(map[string][]Emoji, 0)
 	scanner := bufio.NewScanner(strings.NewReader(e))
 
 	for scanner.Scan() {
@@ -25,7 +27,12 @@ func ParseEmojis(e string) []Emoji {
 		line = strings.TrimSpace(line)
 
 		if strings.Index(line, "#") == 0 {
-			continue
+			if strings.Contains(line, "# group: ") {
+				startOfGroupName := strings.Index(line, ":") + 2
+				currentGroup = line[startOfGroupName:]
+			} else {
+				continue
+			}
 		} else {
 			emojiFields := strings.Fields(line)
 
@@ -42,11 +49,17 @@ func ParseEmojis(e string) []Emoji {
 			})
 
 			name := emojiFields[(emojiVersionIndex + 1):]
-
-			emojis = append(emojis, Emoji{
+			newEmoji := Emoji{
 				Codepoints: strings.Join(codepoints, " "),
 				Name:       strings.Join(name, " "),
-			})
+			}
+
+			emojisInGroup, ok := emojis[currentGroup]
+			if ok {
+				emojis[currentGroup] = append(emojisInGroup, newEmoji)
+			} else {
+				emojis[currentGroup] = []Emoji{newEmoji}
+			}
 		}
 
 	}
