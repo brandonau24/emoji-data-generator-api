@@ -16,6 +16,13 @@ type Emoji struct {
 const EMOJIS_FILE_PATH = "unicode/v15.1/emojis.txt"
 const FULLY_QUALIFIED = "fully-qualified"
 
+func parseCodepoints(emojiFields []string) []string {
+	semicolonIndex := slices.Index(emojiFields, ";")
+	codepoints := emojiFields[0:semicolonIndex]
+
+	return codepoints
+}
+
 func ParseEmojis(e string) map[string][]Emoji {
 	var currentGroup string
 
@@ -40,8 +47,7 @@ func ParseEmojis(e string) map[string][]Emoji {
 				continue
 			}
 
-			semicolonIndex := slices.Index(emojiFields, ";")
-			codepoints := emojiFields[0:semicolonIndex]
+			codepoints := parseCodepoints(emojiFields)
 
 			emojiVersionRegex := regexp.MustCompile(`E\d+\.\d+`)
 			emojiVersionIndex := slices.IndexFunc(emojiFields, func(s string) bool {
