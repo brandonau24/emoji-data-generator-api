@@ -23,6 +23,17 @@ func parseCodepoints(emojiFields []string) []string {
 	return codepoints
 }
 
+func parseEmojiName(emojiFields []string) []string {
+	emojiVersionRegex := regexp.MustCompile(`E\d+\.\d+`)
+	emojiVersionIndex := slices.IndexFunc(emojiFields, func(s string) bool {
+		return emojiVersionRegex.MatchString(s)
+	})
+
+	name := emojiFields[(emojiVersionIndex + 1):]
+
+	return name
+}
+
 func ParseEmojis(e string) map[string][]Emoji {
 	var currentGroup string
 
@@ -48,13 +59,8 @@ func ParseEmojis(e string) map[string][]Emoji {
 			}
 
 			codepoints := parseCodepoints(emojiFields)
+			name := parseEmojiName(emojiFields)
 
-			emojiVersionRegex := regexp.MustCompile(`E\d+\.\d+`)
-			emojiVersionIndex := slices.IndexFunc(emojiFields, func(s string) bool {
-				return emojiVersionRegex.MatchString(s)
-			})
-
-			name := emojiFields[(emojiVersionIndex + 1):]
 			newEmoji := Emoji{
 				Codepoints: strings.Join(codepoints, " "),
 				Name:       strings.Join(name, " "),
