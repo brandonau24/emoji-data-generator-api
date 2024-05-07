@@ -8,9 +8,9 @@ import (
 )
 
 type Emoji struct {
-	Codepoints  string
+	Codepoints  string `json:"codepoints"`
 	annotations []string
-	Name        string
+	Name        string `json:"name"`
 }
 
 const EMOJIS_FILE_PATH = "unicode/v15.1/emojis.txt"
