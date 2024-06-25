@@ -10,6 +10,7 @@ import (
 
 func main() {
 	emojiDataFile := readers.ReadEmojiDataFile()
+	emojiAnnotationsFile := readers.ReadEmojiAnnotationsFile()
 
 	emojis := parsers.ParseEmojis(emojiDataFile)
 	emojisJson, err := json.Marshal(emojis)
@@ -17,4 +18,6 @@ func main() {
 	if err == nil {
 		fmt.Println(string(emojisJson))
 	}
+
+	fmt.Println(emojiAnnotationsFile)
 }
