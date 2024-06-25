@@ -3,6 +3,7 @@ package parsers
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type AnnotationsFile struct {
@@ -30,6 +31,8 @@ func ParseAnnotations(annotations string) map[string][]string {
 	for emoji, emojiAnnotations := range nestedAnnotations {
 		emojiCodepoints := []rune(emoji)
 		emojiCodepointsHexadecimal := fmt.Sprintf("%X", emojiCodepoints)
+		emojiCodepointsHexadecimal = strings.ReplaceAll(emojiCodepointsHexadecimal, "[", "")
+		emojiCodepointsHexadecimal = strings.ReplaceAll(emojiCodepointsHexadecimal, "]", "")
 		parsedAnnotations[emojiCodepointsHexadecimal] = emojiAnnotations.Default
 	}
 
