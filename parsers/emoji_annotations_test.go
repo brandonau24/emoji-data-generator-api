@@ -4,21 +4,8 @@ import (
 	"testing"
 
 	"github.com/brandonau24/emoji-data-generator/parsers"
+	"github.com/brandonau24/emoji-data-generator/test_helpers"
 )
-
-func areAnnotationsEqual(annotations1 []string, annotations2 []string) bool {
-	if len(annotations1) != len(annotations2) {
-		return false
-	}
-
-	for i := range annotations1 {
-		if annotations1[i] != annotations2[i] {
-			return false
-		}
-	}
-
-	return true
-}
 
 func TestParseAnnotations(t *testing.T) {
 	annotations := parsers.ParseAnnotations(`
@@ -47,7 +34,7 @@ func TestParseAnnotations(t *testing.T) {
 		t.Fatalf("Failed to find annotations for 1F600")
 	}
 
-	if !areAnnotationsEqual(emojiAnnotations, expectedAnnotations) {
+	if !test_helpers.AreAnnotationsEqual(emojiAnnotations, expectedAnnotations) {
 		t.Fatalf("Failed to map annotations. Received %v, expected %v", emojiAnnotations, expectedAnnotations)
 	}
 }
