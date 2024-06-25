@@ -12,12 +12,12 @@ func main() {
 	emojiDataFile := readers.ReadEmojiDataFile()
 	emojiAnnotationsFile := readers.ReadEmojiAnnotationsFile()
 
-	emojis := parsers.ParseEmojis(emojiDataFile)
+	emojiAnnotations := parsers.ParseAnnotations(emojiAnnotationsFile)
+
+	emojis := parsers.ParseEmojis(emojiDataFile, emojiAnnotations)
 	emojisJson, err := json.Marshal(emojis)
 
 	if err == nil {
 		fmt.Println(string(emojisJson))
 	}
-
-	fmt.Println(emojiAnnotationsFile)
 }
