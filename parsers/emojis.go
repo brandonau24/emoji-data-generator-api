@@ -9,7 +9,7 @@ import (
 
 type Emoji struct {
 	Codepoints  string `json:"codepoints"`
-	annotations []string
+	Annotations []string
 	Name        string `json:"name"`
 }
 
@@ -34,7 +34,7 @@ func parseEmojiName(emojiFields []string) string {
 	return strings.Join(name, " ")
 }
 
-func ParseEmojis(e string) map[string][]Emoji {
+func ParseEmojis(e string, annotations map[string][]string) map[string][]Emoji {
 	var currentGroup string
 
 	emojis := make(map[string][]Emoji, 0)
@@ -60,10 +60,12 @@ func ParseEmojis(e string) map[string][]Emoji {
 
 			codepoints := parseCodepoints(emojiFields)
 			name := parseEmojiName(emojiFields)
+			emojiAnnotations := annotations[codepoints]
 
 			newEmoji := Emoji{
-				Codepoints: codepoints,
-				Name:       name,
+				Codepoints:  codepoints,
+				Name:        name,
+				Annotations: emojiAnnotations,
 			}
 
 			emojisInGroup, ok := emojis[currentGroup]
