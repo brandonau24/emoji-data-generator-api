@@ -1,6 +1,6 @@
-package test_helpers
+package parsers
 
-func AreAnnotationsEqual(annotations1 []string, annotations2 []string) bool {
+func areAnnotationsEqual(annotations1 []string, annotations2 []string) bool {
 	if len(annotations1) != len(annotations2) {
 		return false
 	}

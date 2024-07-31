@@ -1,14 +1,11 @@
-package parsers_test
+package parsers
 
 import (
 	"testing"
-
-	"github.com/brandonau24/emoji-data-generator/parsers"
-	"github.com/brandonau24/emoji-data-generator/test_helpers"
 )
 
 func TestParseEmojisSkipsComments(t *testing.T) {
-	emojis := parsers.ParseEmojis(`# This is a comment
+	emojis := ParseEmojis(`# This is a comment
 # This is another comment
 # This is the last comment`, map[string][]string{})
 
@@ -18,7 +15,7 @@ func TestParseEmojisSkipsComments(t *testing.T) {
 }
 
 func TestParseEmojisSetsCodepoint(t *testing.T) {
-	emojis := parsers.ParseEmojis(`# group: group1
+	emojis := ParseEmojis(`# group: group1
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`, map[string][]string{
 		"1F600": {"one"},
 	})
@@ -30,7 +27,7 @@ func TestParseEmojisSetsCodepoint(t *testing.T) {
 }
 
 func TestParseEmojisSetsCodepoints(t *testing.T) {
-	emojis := parsers.ParseEmojis(` # group: group1
+	emojis := ParseEmojis(` # group: group1
 1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling
 `, map[string][]string{
 		"1F600": {"one"},
@@ -43,7 +40,7 @@ func TestParseEmojisSetsCodepoints(t *testing.T) {
 }
 
 func TestParseEmojisSetsName(t *testing.T) {
-	emojis := parsers.ParseEmojis(`# group: group1
+	emojis := ParseEmojis(`# group: group1
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`, map[string][]string{
 		"1F600": {"one"},
 	})
@@ -55,7 +52,7 @@ func TestParseEmojisSetsName(t *testing.T) {
 }
 
 func TestParseEmojiSelectsFullyQualifiedEmojis(t *testing.T) {
-	emojis := parsers.ParseEmojis(` # group: group1
+	emojis := ParseEmojis(` # group: group1
 F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
 1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
 2620                                                   ; unqualified         # ☠ E1.0 skull and crossbones
@@ -70,7 +67,7 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # �
 }
 
 func TestParseEmojisGroupsEmojis(t *testing.T) {
-	emojis := parsers.ParseEmojis(`# group: Smileys & Emotion
+	emojis := ParseEmojis(`# group: Smileys & Emotion
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
 1F603                                                  ; fully-qualified     # 😃 E0.6 grinning face with big eyes
 1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
@@ -108,7 +105,7 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 	smileyAnnotations := []string{"face", "grin", "grinning face"}
 	faceCloudAnnotations := []string{"absentminded", "face in clouds", "face in the fog", "head in clouds"}
 
-	emojis := parsers.ParseEmojis(`# group: Smileys & Emotion
+	emojis := ParseEmojis(`# group: Smileys & Emotion
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
 1F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
 1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
@@ -123,13 +120,13 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 	}
 
 	smileyEmoji := smileyAndEmotionsGroup[0]
-	if !test_helpers.AreAnnotationsEqual(smileyEmoji.Annotations, smileyAnnotations) {
+	if !areAnnotationsEqual(smileyEmoji.Annotations, smileyAnnotations) {
 		t.Fatalf("Failed to map annotations. Received %v, expected %v", smileyEmoji.Annotations, smileyAnnotations)
 
 	}
 
 	faceInCloudEmoji := smileyAndEmotionsGroup[1]
-	if !test_helpers.AreAnnotationsEqual(faceInCloudEmoji.Annotations, faceCloudAnnotations) {
+	if !areAnnotationsEqual(faceInCloudEmoji.Annotations, faceCloudAnnotations) {
 		t.Fatalf("Failed to map annotations. Received %v, expected %v", faceInCloudEmoji.Annotations, faceCloudAnnotations)
 
 	}
