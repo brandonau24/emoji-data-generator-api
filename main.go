@@ -26,6 +26,9 @@ func (h *EmojiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("500 - Could not parse emoji data"))
 		}
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 - Bad request"))
 	}
 }
 
