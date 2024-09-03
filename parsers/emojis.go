@@ -8,6 +8,7 @@ import (
 )
 
 type Emoji struct {
+	Character   string   `json:"character"`
 	Codepoints  string   `json:"codepoints"`
 	Annotations []string `json:"annotations"`
 	Name        string   `json:"name"`
@@ -34,6 +35,12 @@ func parseEmojiName(emojiFields []string) string {
 	return strings.Join(name, " ")
 }
 
+func parseEmojiCharacter(emojiFields []string) string {
+	emojiCharacterIndex := slices.Index(emojiFields, "#") + 1
+
+	return emojiFields[emojiCharacterIndex]
+}
+
 func ParseEmojis(e string, annotations map[string][]string) map[string][]Emoji {
 	var currentGroup string
 
@@ -58,11 +65,13 @@ func ParseEmojis(e string, annotations map[string][]string) map[string][]Emoji {
 				continue
 			}
 
+			character := parseEmojiCharacter(emojiFields)
 			codepoints := parseCodepoints(emojiFields)
 			name := parseEmojiName(emojiFields)
 			emojiAnnotations := annotations[codepoints]
 
 			newEmoji := Emoji{
+				Character:   character,
 				Codepoints:  codepoints,
 				Name:        name,
 				Annotations: emojiAnnotations,

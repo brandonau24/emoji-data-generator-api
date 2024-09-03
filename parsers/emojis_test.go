@@ -131,3 +131,24 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 
 	}
 }
+
+func TestParseEmojisSetsCharacter(t *testing.T) {
+	emojis := ParseEmojis(` # group: group1
+1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling
+1F44B 1F3FB                                            ; fully-qualified     # 👋🏻 E1.0 waving hand: light skin tone
+`, map[string][]string{
+		"1F600": {"one"},
+	})
+
+	faceExhalingEmoji := emojis["group1"][0]
+
+	if faceExhalingEmoji.Character != "😮‍💨" {
+		t.Fatalf("Failed to get emoji character. Received %v, expected %v", faceExhalingEmoji.Character, "😮‍💨")
+	}
+
+	lightSkinWavingHandEmoji := emojis["group1"][1]
+
+	if lightSkinWavingHandEmoji.Character != "👋🏻" {
+		t.Fatalf("Failed to get emoji character. Received %v, expected %v", lightSkinWavingHandEmoji.Character, "👋🏻")
+	}
+}
