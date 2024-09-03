@@ -2,22 +2,36 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"net/http"
 
 	"github.com/brandonau24/emoji-data-generator/parsers"
 	"github.com/brandonau24/emoji-data-generator/readers"
 )
 
-func main() {
-	emojiDataFile := readers.ReadEmojiDataFile()
-	emojiAnnotationsFile := readers.ReadEmojiAnnotationsFile()
+type EmojiHandler struct{}
 
-	emojiAnnotations := parsers.ParseAnnotations(emojiAnnotationsFile)
+func (h *EmojiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		emojiDataFile := readers.ReadEmojiDataFile()
+		emojiAnnotationsFile := readers.ReadEmojiAnnotationsFile()
 
-	emojis := parsers.ParseEmojis(emojiDataFile, emojiAnnotations)
-	emojisJson, err := json.Marshal(emojis)
+		emojiAnnotations := parsers.ParseAnnotations(emojiAnnotationsFile)
 
-	if err == nil {
-		fmt.Println(string(emojisJson))
+		emojis := parsers.ParseEmojis(emojiDataFile, emojiAnnotations)
+		emojisJson, err := json.Marshal(emojis)
+
+		if err == nil {
+			w.Write(emojisJson)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - Could not parse emoji data"))
+		}
 	}
+}
+
+func main() {
+	mux := http.NewServeMux()
+	mux.Handle("/", &EmojiHandler{})
+
+	http.ListenAndServe(":8080", mux)
 }
