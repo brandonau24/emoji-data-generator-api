@@ -1,0 +1,8 @@
+**/*_test.go
+parsers/test_helpers.go
+
+prod.*
+podman-compose.yaml
+
+.git
+.gitignore

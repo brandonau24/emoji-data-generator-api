@@ -1,0 +1,10 @@
+version: '3'
+services:
+  emoji-data-generator-api:
+    build:
+      context: .
+      dockerfile: prod.Containerfile
+    container_name: emoji-data-generator-api
+    image: emoji-data-generator-api
+    ports:
+      - "8080:8080"
