@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 
@@ -12,16 +13,20 @@ type EmojiHandler struct{}
 
 func (h *EmojiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		var buffer bytes.Buffer
+		encoder := json.NewEncoder(&buffer)
+		encoder.SetEscapeHTML(false)
+
 		emojiDataFile := readers.ReadEmojiDataFile()
 		emojiAnnotationsFile := readers.ReadEmojiAnnotationsFile()
 
 		emojiAnnotations := parsers.ParseAnnotations(emojiAnnotationsFile)
 
 		emojis := parsers.ParseEmojis(emojiDataFile, emojiAnnotations)
-		emojisJson, err := json.Marshal(emojis)
+		err := encoder.Encode(emojis)
 
 		if err == nil {
-			w.Write(emojisJson)
+			w.Write(buffer.Bytes())
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("500 - Could not parse emoji data"))
