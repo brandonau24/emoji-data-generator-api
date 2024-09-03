@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/brandonau24/emoji-data-generator/parsers"
@@ -32,8 +33,8 @@ func (h *EmojiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("500 - Could not parse emoji data"))
 		}
 	} else {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("400 - Bad request"))
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte(fmt.Sprintf("%v request not allowed", r.Method)))
 	}
 }
 
