@@ -1,8 +1,11 @@
 **/*_test.go
 parsers/test_helpers.go
 
-prod.*
+Containerfile
+.containerignore
 podman-compose.yaml
 
 .git
 .gitignore
+
+README.md
