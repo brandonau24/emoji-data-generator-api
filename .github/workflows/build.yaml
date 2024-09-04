@@ -1,4 +1,4 @@
-name: Go Build
+name: Build
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Go Build
+    name: Build
     runs-on: ubuntu-22.04
     
     steps:
@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ${{ github.workspace }}/.github/workflows/build.Containerfile
-          tags: emoji-data-generator/latest
+          tags: emoji-data-generator
 
-      - name: Start containerand build
+      - name: Start container and build
         run: docker run --rm emoji-data-generator
