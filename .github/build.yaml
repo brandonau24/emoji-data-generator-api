@@ -1,0 +1,35 @@
+name: Go Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+    branches:
+      - *
+
+jobs:
+  build:
+    name: Go Build
+      runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+    
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Image
+        uses: docker/build-push-action@v6
+        with:
+          file: ${{ github.workspace }}/.github/build.Containerfile
+          tags: emoji-data-generator/latest
+
+      - name: Start containerand build
+        run: docker run --rm emoji-data-generator
