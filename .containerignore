@@ -7,5 +7,6 @@ podman-compose.yaml
 
 .git
 .gitignore
+.github
 
 README.md
