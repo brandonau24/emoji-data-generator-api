@@ -27,7 +27,3 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ${{ github.workspace }}/.github/workflows/build.Containerfile
-          tags: emoji-data-generator
-
-      - name: Start container and build
-        run: docker run --rm emoji-data-generator
