@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:1.23-alpine
+FROM docker.io/library/golang:1.23
 
 WORKDIR /emoji-data-generator-api
 
