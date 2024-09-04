@@ -10,7 +10,7 @@ func TestParseEmojisSkipsComments(t *testing.T) {
 # This is the last comment`, map[string][]string{})
 
 	if len(emojis) != 0 {
-		t.Fatalf("Failed to parse comments")
+		t.Errorf("Failed to parse comments")
 	}
 }
 
@@ -22,7 +22,7 @@ func TestParseEmojisSetsCodepoint(t *testing.T) {
 	emoji := emojis["group1"][0]
 
 	if emoji.Codepoints != "1F600" {
-		t.Fatalf("Failed to parse codepoint. Received %v, expected 1F600", emoji.Codepoints)
+		t.Errorf("Failed to parse codepoint. Received %v, expected 1F600", emoji.Codepoints)
 	}
 }
 
@@ -35,7 +35,7 @@ func TestParseEmojisSetsCodepoints(t *testing.T) {
 	emoji := emojis["group1"][0]
 
 	if emoji.Codepoints != "1F62E 200D 1F4A8" {
-		t.Fatalf("Failed to parse codepoint. Received %v, expected 1F62E 200D 1F4A8", emoji.Codepoints)
+		t.Errorf("Failed to parse codepoint. Received %v, expected 1F62E 200D 1F4A8", emoji.Codepoints)
 	}
 }
 
@@ -47,7 +47,7 @@ func TestParseEmojisSetsName(t *testing.T) {
 	emoji := emojis["group1"][0]
 
 	if emoji.Name != "grinning face" {
-		t.Fatalf("Failed to parse codepoint. Received %v, expected grinning face", emoji.Name)
+		t.Errorf("Failed to parse codepoint. Received %v, expected grinning face", emoji.Name)
 	}
 }
 
@@ -62,7 +62,7 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # �
 	emojisInGroup1 := emojis["group1"]
 
 	if len(emojisInGroup1) != 1 {
-		t.Fatalf("Other emojis that are not fully qualified have been parsed")
+		t.Errorf("Other emojis that are not fully qualified have been parsed")
 	}
 }
 
@@ -83,21 +83,21 @@ func TestParseEmojisGroupsEmojis(t *testing.T) {
 	smileyAndEmotionsGroup, smileyAndEmotionOk := emojis["Smileys & Emotion"]
 
 	if !smileyAndEmotionOk {
-		t.Fatalf("Could not parse Smileys & Emotion group")
+		t.Errorf("Could not parse Smileys & Emotion group")
 	}
 
 	if len(smileyAndEmotionsGroup) != 2 {
-		t.Fatalf("Expected 2 emojis in Smiley & Emotion group, received %v", len(smileyAndEmotionsGroup))
+		t.Errorf("Expected 2 emojis in Smiley & Emotion group, received %v", len(smileyAndEmotionsGroup))
 	}
 
 	peopleAndBodyGroup, peopleAndBodyOk := emojis["People & Body"]
 
 	if !peopleAndBodyOk {
-		t.Fatalf("Could not parse People & Body group")
+		t.Errorf("Could not parse People & Body group")
 	}
 
 	if len(peopleAndBodyGroup) != 2 {
-		t.Fatalf("Expected 2 emojis in People & Body group, received %v", len(peopleAndBodyGroup))
+		t.Errorf("Expected 2 emojis in People & Body group, received %v", len(peopleAndBodyGroup))
 	}
 }
 
@@ -116,18 +116,18 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 
 	smileyAndEmotionsGroup, ok := emojis["Smileys & Emotion"]
 	if !ok {
-		t.Fatalf("Could not parse Smileys & Emotion group")
+		t.Errorf("Could not parse Smileys & Emotion group")
 	}
 
 	smileyEmoji := smileyAndEmotionsGroup[0]
 	if !areAnnotationsEqual(smileyEmoji.Annotations, smileyAnnotations) {
-		t.Fatalf("Failed to map annotations. Received %v, expected %v", smileyEmoji.Annotations, smileyAnnotations)
+		t.Errorf("Failed to map annotations. Received %v, expected %v", smileyEmoji.Annotations, smileyAnnotations)
 
 	}
 
 	faceInCloudEmoji := smileyAndEmotionsGroup[1]
 	if !areAnnotationsEqual(faceInCloudEmoji.Annotations, faceCloudAnnotations) {
-		t.Fatalf("Failed to map annotations. Received %v, expected %v", faceInCloudEmoji.Annotations, faceCloudAnnotations)
+		t.Errorf("Failed to map annotations. Received %v, expected %v", faceInCloudEmoji.Annotations, faceCloudAnnotations)
 
 	}
 }
@@ -143,12 +143,12 @@ func TestParseEmojisSetsCharacter(t *testing.T) {
 	faceExhalingEmoji := emojis["group1"][0]
 
 	if faceExhalingEmoji.Character != "😮‍💨" {
-		t.Fatalf("Failed to get emoji character. Received %v, expected %v", faceExhalingEmoji.Character, "😮‍💨")
+		t.Errorf("Failed to get emoji character. Received %v, expected %v", faceExhalingEmoji.Character, "😮‍💨")
 	}
 
 	lightSkinWavingHandEmoji := emojis["group1"][1]
 
 	if lightSkinWavingHandEmoji.Character != "👋🏻" {
-		t.Fatalf("Failed to get emoji character. Received %v, expected %v", lightSkinWavingHandEmoji.Character, "👋🏻")
+		t.Errorf("Failed to get emoji character. Received %v, expected %v", lightSkinWavingHandEmoji.Character, "👋🏻")
 	}
 }

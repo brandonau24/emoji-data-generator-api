@@ -28,10 +28,10 @@ func TestParseAnnotations(t *testing.T) {
 
 	emojiAnnotations, ok := annotations["1F600"]
 	if !ok {
-		t.Fatalf("Failed to find annotations for 1F600")
+		t.Errorf("Failed to find annotations for 1F600")
 	}
 
 	if !areAnnotationsEqual(emojiAnnotations, expectedAnnotations) {
-		t.Fatalf("Failed to map annotations. Received %v, expected %v", emojiAnnotations, expectedAnnotations)
+		t.Errorf("Failed to map annotations. Received %v, expected %v", emojiAnnotations, expectedAnnotations)
 	}
 }
