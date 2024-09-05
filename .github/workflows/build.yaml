@@ -16,5 +16,6 @@ jobs:
             - name: Setup Build and Push Image
               uses: docker/build-push-action@v6
               with:
+                file: Containerfile
                 push: false
                 target: build
