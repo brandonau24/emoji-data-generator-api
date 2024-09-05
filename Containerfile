@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:1.23 as build
+FROM docker.io/library/golang:1.23 AS build
 
 WORKDIR /emoji-data-generator-api
 
@@ -7,7 +7,7 @@ COPY . ./
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/emoji-data-generator-api
 
-FROM build as unit_tests
+FROM build AS unit_tests
 
 RUN go test ./...
 
