@@ -25,9 +25,9 @@
 		}
 	},
 	"runArgs": [
-		"--userns=keep-id"
+		"--userns=keep-id",
+		"--volume=${localWorkspaceFolder}:/${localWorkspaceFolderBasename}:Z"
 	],
-	"workspaceMount": "source=${localWorkspaceFolder},target=/emoji-data-generator,type=bind,Z",
-	"workspaceFolder": "/emoji-data-generator",
+	"workspaceFolder": "/${localWorkspaceFolderBasename}",
 	"remoteUser": "vscode"
 }
