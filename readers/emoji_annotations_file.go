@@ -1,21 +1,11 @@
 package readers
 
-import (
-	"fmt"
-	"os"
-	"path"
-)
+import _ "embed"
 
-const EMOJIS_ANNOTATIONS_FILE_PATH = "unicode/cldr/v45/annotations/en.json"
+//go:embed en.json
+var annotationsFileContent string
 
 func ReadEmojiAnnotationsFile() string {
-	workingDir, _ := os.Getwd()
-	filePath := path.Join(workingDir, EMOJIS_ANNOTATIONS_FILE_PATH)
-	emojiAnnotationsFile, err := os.ReadFile(filePath)
 
-	if err != nil {
-		panic(fmt.Sprintf("cannot open file: %v", filePath))
-	}
-
-	return string(emojiAnnotationsFile)
+	return annotationsFileContent
 }
