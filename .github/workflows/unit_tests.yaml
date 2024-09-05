@@ -1,0 +1,21 @@
+name: Go Unit Tests
+
+on:
+    push:
+        branches:
+            - 'main'
+    pull_request:
+
+jobs:
+    run_tests:
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Setup Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Setup Build and Push Image
+              uses: docker/build-push-action@v6
+              with:
+                file: Containerfile
+                push: false
+                target: unit_tests
