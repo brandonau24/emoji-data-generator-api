@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/brandonau24/emoji-data-generator/parsers"
@@ -42,5 +43,5 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", &EmojiHandler{})
 
-	http.ListenAndServe(":8080", mux)
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
