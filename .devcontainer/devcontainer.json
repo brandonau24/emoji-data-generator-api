@@ -1,0 +1,33 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/go
+{
+	"name": "Go",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"dockerFile": "Containerfile.dev",
+	"features": {
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "1.23"
+		}
+	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "go version",
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"redhat.vscode-yaml",
+				"ms-azuretools.vscode-docker",
+				"github.vscode-github-actions",
+				"golang.go"
+			]
+		}
+	},
+	"runArgs": [
+		"--userns=keep-id"
+	],
+	"workspaceMount": "source=${localWorkspaceFolder},target=/emoji-data-generator,type=bind,Z",
+	"workspaceFolder": "/emoji-data-generator",
+	"remoteUser": "vscode"
+}
