@@ -32,7 +32,7 @@ func TestEmojiParserApi(t *testing.T) {
 	}
 
 	var emojiData map[string][]parsers.Emoji
-	json.Unmarshal(data, &emojiData)
+	json.Unmarshal(data, &emojiData) //nolint:errcheck
 
 	// TODO: Need stronger assertions. Check for each group? Check a few emojis and their properties?
 	if _, ok := emojiData["Smileys & Emotion"]; !ok {

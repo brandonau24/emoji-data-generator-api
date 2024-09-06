@@ -1,15 +1,22 @@
-FROM docker.io/library/golang:1.23 AS build
+FROM docker.io/library/golang:1.23 AS lint
 
-WORKDIR /emoji-data-generator-api
+WORKDIR /emoji-data-generator
+
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.60.3
 
 COPY . ./
 
-RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/emoji-data-generator-api
+RUN golangci-lint run
 
-FROM build AS unit_tests
+FROM lint AS unit_tests
 
 RUN go test ./...
+
+FROM unit_tests AS build
+
+RUN go mod download
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/emoji-data-generator-api
 
 FROM docker.io/library/alpine
 

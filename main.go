@@ -28,14 +28,14 @@ func (h *EmojiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err := encoder.Encode(emojis)
 
 		if err == nil {
-			w.Write(buffer.Bytes())
+			w.Write(buffer.Bytes()) //nolint:errcheck
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("500 - Could not parse emoji data"))
+			w.Write([]byte("500 - Could not parse emoji data")) //nolint:errcheck
 		}
 	} else {
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte(fmt.Sprintf("%v request not allowed", r.Method)))
+		w.Write([]byte(fmt.Sprintf("%v request not allowed", r.Method))) //nolint:errcheck
 	}
 }
 
