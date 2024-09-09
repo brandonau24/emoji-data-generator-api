@@ -15,4 +15,5 @@ jobs:
       - name: Build devcontainer image and run Go tests
         uses: devcontainers/ci@v0.3
         with:
+          skipContainerUserIdUpdate: true
           runCmd: go test ./...
