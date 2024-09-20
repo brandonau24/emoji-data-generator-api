@@ -1,0 +1,7 @@
+#!/usr/bin/sh
+
+echo "Run golangci-lint..."
+golangci-lint run
+
+echo "Run unit tests..."
+go test ./...
