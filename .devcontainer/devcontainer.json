@@ -23,5 +23,6 @@
 		"--name=${localWorkspaceFolderBasename}_devcontainer"
 	],
 	"workspaceFolder": "/${localWorkspaceFolderBasename}",
-	"remoteUser": "vscode"
+	"remoteUser": "vscode",
+	"postStartCommand": "/${localWorkspaceFolderBasename}/devcontainer_init.sh"
 }
