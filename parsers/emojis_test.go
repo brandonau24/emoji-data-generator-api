@@ -226,3 +226,20 @@ func TestParseEmojisSetsCharacter(t *testing.T) {
 		t.Errorf("Failed to get emoji character. Received %v, expected %v", lightSkinWavingHandEmoji.Character, "👋🏻")
 	}
 }
+
+func TestFetchEmojiDataFileFails(t *testing.T) {
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Failed test request"))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	_, err := ParseEmojis(emojisHttpTestServer.URL, nil)
+
+	if err == nil {
+		t.Errorf("Expected parser to return error on a failed request")
+	}
+}

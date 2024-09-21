@@ -3,6 +3,7 @@ package parsers
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -56,8 +57,9 @@ func fetchEmojiDataFile(unicodeBaseUrl string) (*http.Response, error) {
 		log.Println(err.Error())
 		return nil, fmt.Errorf("could not make connect to %v", baseUrl)
 	} else if emojisResponse.StatusCode != http.StatusOK {
+		responseBytes, _ := io.ReadAll(emojisResponse.Body)
 		log.Printf("Emojis Data File - HTTP Status Code: %v", emojisResponse.StatusCode)
-		log.Printf("Emojis Data File - Response Body: %v", emojisResponse.Body)
+		log.Printf("Emojis Data File - Response Body: %v", string(responseBytes))
 
 		return nil, fmt.Errorf("could not make successful request to unicode.org")
 	}
