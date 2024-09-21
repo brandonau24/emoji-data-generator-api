@@ -20,7 +20,8 @@
 	"runArgs": [
 		"--userns=keep-id",
 		"--volume=${localWorkspaceFolder}:/${localWorkspaceFolderBasename}:Z",
-		"--name=${localWorkspaceFolderBasename}_devcontainer"
+		"--name=${localWorkspaceFolderBasename}_devcontainer",
+		"--tz=local"
 	],
 	"workspaceFolder": "/${localWorkspaceFolderBasename}",
 	"remoteUser": "vscode",
