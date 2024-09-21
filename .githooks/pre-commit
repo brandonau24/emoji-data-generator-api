@@ -4,4 +4,4 @@ echo "Run golangci-lint..."
 golangci-lint run
 
 echo "Run unit tests..."
-go test ./... -v
+go test ./... -v -fullpath

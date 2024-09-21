@@ -10,7 +10,7 @@ RUN golangci-lint run
 
 FROM lint AS unit_tests
 
-RUN go test ./... -v
+RUN go test ./... -v -fullpath
 
 FROM unit_tests AS build
 
