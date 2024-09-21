@@ -19,15 +19,22 @@ func (h *EmojiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		encoder := json.NewEncoder(&buffer)
 		encoder.SetEscapeHTML(false)
 
-		emojiDataFile := readers.ReadEmojiDataFile()
 		emojiAnnotationsFile := readers.ReadEmojiAnnotationsFile()
 
 		emojiAnnotations := parsers.ParseAnnotations(emojiAnnotationsFile)
 
-		emojis := parsers.ParseEmojis(emojiDataFile, emojiAnnotations)
-		err := encoder.Encode(emojis)
+		emojis, parseError := parsers.ParseEmojis("", emojiAnnotations)
 
-		if err == nil {
+		if parseError != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(parseError.Error())) //nolint:errcheck
+
+			return
+		}
+
+		encodeError := encoder.Encode(emojis)
+
+		if encodeError == nil {
 			w.Write(buffer.Bytes()) //nolint:errcheck
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)

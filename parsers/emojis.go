@@ -2,6 +2,9 @@ package parsers
 
 import (
 	"bufio"
+	"fmt"
+	"log"
+	"net/http"
 	"regexp"
 	"slices"
 	"strings"
@@ -14,7 +17,7 @@ type Emoji struct {
 	Name        string   `json:"name"`
 }
 
-const EMOJIS_FILE_PATH = "unicode/v15.1/emojis.txt"
+const UNICODE_BASE_URL = "https://unicode.org"
 const FULLY_QUALIFIED = "fully-qualified"
 
 func parseCodepoints(emojiFields []string) string {
@@ -41,11 +44,41 @@ func parseEmojiCharacter(emojiFields []string) string {
 	return emojiFields[emojiCharacterIndex]
 }
 
-func ParseEmojis(e string, annotations map[string][]string) map[string][]Emoji {
+func fetchEmojiDataFile(unicodeBaseUrl string) (*http.Response, error) {
+	baseUrl := unicodeBaseUrl
+	if baseUrl == "" {
+		baseUrl = UNICODE_BASE_URL
+	}
+
+	emojisResponse, err := http.Get(fmt.Sprintf("%v/Public/emoji/16.0/emoji-test.txt", baseUrl))
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil, fmt.Errorf("could not make connect to %v", baseUrl)
+	} else if emojisResponse.StatusCode != http.StatusOK {
+		log.Printf("Emojis Data File - HTTP Status Code: %v", emojisResponse.StatusCode)
+		log.Printf("Emojis Data File - Response Body: %v", emojisResponse.Body)
+
+		return nil, fmt.Errorf("could not make successful request to unicode.org")
+	}
+
+	return emojisResponse, nil
+}
+
+func ParseEmojis(unicodeBaseUrl string, annotations map[string][]string) (map[string][]Emoji, error) {
 	var currentGroup string
 
 	emojis := make(map[string][]Emoji, 0)
-	scanner := bufio.NewScanner(strings.NewReader(e))
+
+	emojiDataFileResponse, fetchErr := fetchEmojiDataFile(unicodeBaseUrl)
+
+	if fetchErr != nil {
+		return nil, fetchErr
+	}
+
+	defer emojiDataFileResponse.Body.Close()
+
+	scanner := bufio.NewScanner(emojiDataFileResponse.Body)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -87,5 +120,5 @@ func ParseEmojis(e string, annotations map[string][]string) map[string][]Emoji {
 
 	}
 
-	return emojis
+	return emojis, nil
 }

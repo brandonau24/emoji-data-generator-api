@@ -1,13 +1,25 @@
+//nolint:errcheck
 package parsers
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestParseEmojisSkipsComments(t *testing.T) {
-	emojis := ParseEmojis(`# This is a comment
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# This is a comment
 # This is another comment
-# This is the last comment`, map[string][]string{})
+# This is the last comment`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{})
 
 	if len(emojis) != 0 {
 		t.Errorf("Failed to parse comments")
@@ -15,8 +27,17 @@ func TestParseEmojisSkipsComments(t *testing.T) {
 }
 
 func TestParseEmojisSetsCodepoint(t *testing.T) {
-	emojis := ParseEmojis(`# group: group1
-1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`, map[string][]string{
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: group1
+1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
 		"1F600": {"one"},
 	})
 	emoji := emojis["group1"][0]
@@ -27,9 +48,17 @@ func TestParseEmojisSetsCodepoint(t *testing.T) {
 }
 
 func TestParseEmojisSetsCodepoints(t *testing.T) {
-	emojis := ParseEmojis(` # group: group1
-1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling
-`, map[string][]string{
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: group1
+1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
 		"1F600": {"one"},
 	})
 	emoji := emojis["group1"][0]
@@ -40,8 +69,17 @@ func TestParseEmojisSetsCodepoints(t *testing.T) {
 }
 
 func TestParseEmojisSetsName(t *testing.T) {
-	emojis := ParseEmojis(`# group: group1
-1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`, map[string][]string{
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: group1
+1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
 		"1F600": {"one"},
 	})
 	emoji := emojis["group1"][0]
@@ -52,11 +90,20 @@ func TestParseEmojisSetsName(t *testing.T) {
 }
 
 func TestParseEmojiSelectsFullyQualifiedEmojis(t *testing.T) {
-	emojis := ParseEmojis(` # group: group1
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(` # group: group1
 F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
 1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
 2620                                                   ; unqualified         # ☠ E1.0 skull and crossbones
-`, map[string][]string{
+`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
 		"1F600": {"one"},
 	})
 	emojisInGroup1 := emojis["group1"]
@@ -67,7 +114,10 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # �
 }
 
 func TestParseEmojisGroupsEmojis(t *testing.T) {
-	emojis := ParseEmojis(`# group: Smileys & Emotion
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: Smileys & Emotion
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
 1F603                                                  ; fully-qualified     # 😃 E0.6 grinning face with big eyes
 1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
@@ -76,7 +126,13 @@ func TestParseEmojisGroupsEmojis(t *testing.T) {
 1F44B                                                  ; fully-qualified     # 👋 E0.6 waving hand
 1F44B 1F3FB                                            ; fully-qualified     # 👋🏻 E1.0 waving hand: light skin tone
 1F590                                                  ; unqualified         # 🖐 E0.7 hand with fingers splayed
-`, map[string][]string{
+`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
 		"1F600": {"one"},
 	})
 
@@ -102,14 +158,23 @@ func TestParseEmojisGroupsEmojis(t *testing.T) {
 }
 
 func TestParseEmojisSetsAnnotations(t *testing.T) {
-	smileyAnnotations := []string{"face", "grin", "grinning face"}
-	faceCloudAnnotations := []string{"absentminded", "face in clouds", "face in the fog", "head in clouds"}
-
-	emojis := ParseEmojis(`# group: Smileys & Emotion
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: Smileys & Emotion
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
 1F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
 1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
-`, map[string][]string{
+`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	smileyAnnotations := []string{"face", "grin", "grinning face"}
+	faceCloudAnnotations := []string{"absentminded", "face in clouds", "face in the fog", "head in clouds"}
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
 		"1F600":                 smileyAnnotations,
 		"1F636 200D 1F32B FE0F": faceCloudAnnotations,
 	})
@@ -133,10 +198,19 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 }
 
 func TestParseEmojisSetsCharacter(t *testing.T) {
-	emojis := ParseEmojis(` # group: group1
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(` # group: group1
 1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling
 1F44B 1F3FB                                            ; fully-qualified     # 👋🏻 E1.0 waving hand: light skin tone
-`, map[string][]string{
+`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
 		"1F600": {"one"},
 	})
 
