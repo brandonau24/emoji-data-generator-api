@@ -69,7 +69,7 @@ func fetchEmojiDataFile(unicodeBaseUrl string) (*http.Response, error) {
 	return emojisResponse, nil
 }
 
-func ParseEmojis(unicodeBaseUrl string, annotations map[string][]string) (map[string][]Emoji, error) {
+func ParseEmojis(unicodeBaseUrl string, annotations map[string]Annotation) (map[string][]Emoji, error) {
 	var currentGroup string
 
 	emojis := make(map[string][]Emoji, 0)
@@ -111,7 +111,7 @@ func ParseEmojis(unicodeBaseUrl string, annotations map[string][]string) (map[st
 				Character:   character,
 				Codepoints:  codepoints,
 				Name:        name,
-				Annotations: emojiAnnotations,
+				Annotations: emojiAnnotations.Default,
 			}
 
 			emojisInGroup, ok := emojis[currentGroup]

@@ -19,7 +19,7 @@ func TestParseEmojisSkipsComments(t *testing.T) {
 
 	defer emojisHttpTestServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{})
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{})
 
 	if len(emojis) != 0 {
 		t.Errorf("Failed to parse comments")
@@ -37,8 +37,11 @@ func TestParseEmojisSetsCodepoint(t *testing.T) {
 
 	defer emojisHttpTestServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
-		"1F600": {"one"},
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+		"1F600": {
+			Default: []string{"one"},
+			Tts:     []string{"tts"},
+		},
 	})
 	emoji := emojis["group1"][0]
 
@@ -58,8 +61,11 @@ func TestParseEmojisSetsCodepoints(t *testing.T) {
 
 	defer emojisHttpTestServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
-		"1F600": {"one"},
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+		"1F600": {
+			Default: []string{"one"},
+			Tts:     []string{"tts"},
+		},
 	})
 	emoji := emojis["group1"][0]
 
@@ -79,8 +85,11 @@ func TestParseEmojisSetsName(t *testing.T) {
 
 	defer emojisHttpTestServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
-		"1F600": {"one"},
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+		"1F600": {
+			Default: []string{"one"},
+			Tts:     []string{"tts"},
+		},
 	})
 	emoji := emojis["group1"][0]
 
@@ -103,8 +112,11 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # ðŸ
 
 	defer emojisHttpTestServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
-		"1F600": {"one"},
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+		"1F600": {
+			Default: []string{"one"},
+			Tts:     []string{"tts"},
+		},
 	})
 	emojisInGroup1 := emojis["group1"]
 
@@ -132,8 +144,11 @@ func TestParseEmojisGroupsEmojis(t *testing.T) {
 
 	defer emojisHttpTestServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
-		"1F600": {"one"},
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+		"1F600": {
+			Default: []string{"one"},
+			Tts:     []string{"tts"},
+		},
 	})
 
 	smileyAndEmotionsGroup, smileyAndEmotionOk := emojis["Smileys & Emotion"]
@@ -174,9 +189,15 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 	smileyAnnotations := []string{"face", "grin", "grinning face"}
 	faceCloudAnnotations := []string{"absentminded", "face in clouds", "face in the fog", "head in clouds"}
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
-		"1F600":                 smileyAnnotations,
-		"1F636 200D 1F32B FE0F": faceCloudAnnotations,
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+		"1F600": {
+			Default: smileyAnnotations,
+			Tts:     []string{"grinning face"},
+		},
+		"1F636 200D 1F32B FE0F": {
+			Default: faceCloudAnnotations,
+			Tts:     []string{"face in clouds"},
+		},
 	})
 
 	smileyAndEmotionsGroup, ok := emojis["Smileys & Emotion"]
@@ -210,8 +231,11 @@ func TestParseEmojisSetsCharacter(t *testing.T) {
 
 	defer emojisHttpTestServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string][]string{
-		"1F600": {"one"},
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+		"1F600": {
+			Default: []string{"one"},
+			Tts:     []string{"tts"},
+		},
 	})
 
 	faceExhalingEmoji := emojis["group1"][0]

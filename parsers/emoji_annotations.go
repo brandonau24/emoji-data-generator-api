@@ -14,9 +14,10 @@ type AnnotationsFile struct {
 
 type Annotation struct {
 	Default []string
+	Tts     []string
 }
 
-func ParseAnnotations(annotations string) map[string][]string {
+func ParseAnnotations(annotations string) map[string]Annotation {
 	var annotationsFileMap AnnotationsFile
 	err := json.Unmarshal([]byte(annotations), &annotationsFileMap)
 
@@ -24,7 +25,7 @@ func ParseAnnotations(annotations string) map[string][]string {
 		panic(err)
 	}
 
-	parsedAnnotations := make(map[string][]string, 0)
+	parsedAnnotations := make(map[string]Annotation, 0)
 
 	nestedAnnotations := annotationsFileMap.Annotations.Annotations
 
@@ -33,7 +34,7 @@ func ParseAnnotations(annotations string) map[string][]string {
 		emojiCodepointsHexadecimal := fmt.Sprintf("%X", emojiCodepoints)
 		emojiCodepointsHexadecimal = strings.ReplaceAll(emojiCodepointsHexadecimal, "[", "")
 		emojiCodepointsHexadecimal = strings.ReplaceAll(emojiCodepointsHexadecimal, "]", "")
-		parsedAnnotations[emojiCodepointsHexadecimal] = emojiAnnotations.Default
+		parsedAnnotations[emojiCodepointsHexadecimal] = emojiAnnotations
 	}
 
 	return parsedAnnotations
