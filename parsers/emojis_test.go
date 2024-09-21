@@ -88,13 +88,37 @@ func TestParseEmojisSetsName(t *testing.T) {
 	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
 		"1F600": {
 			Default: []string{"one"},
-			Tts:     []string{"tts"},
+			Tts:     []string{"grinning face"},
 		},
 	})
 	emoji := emojis["group1"][0]
 
 	if emoji.Name != "grinning face" {
-		t.Errorf("Failed to parse codepoint. Received %v, expected grinning face", emoji.Name)
+		t.Errorf("Failed to parse emoji name. Received %v, expected grinning face", emoji.Name)
+	}
+}
+
+func TestParseEmojisSetsFirstNameFromTtsList(t *testing.T) {
+	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: group1
+1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
+		}
+	}))
+
+	defer emojisHttpTestServer.Close()
+
+	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+		"1F600": {
+			Default: []string{"one"},
+			Tts:     []string{"grinning face", "not a name to be used", "another name not to be used"},
+		},
+	})
+	emoji := emojis["group1"][0]
+
+	if emoji.Name != "grinning face" {
+		t.Errorf("Failed to parse emoji name. Received %v, expected grinning face", emoji.Name)
 	}
 }
 

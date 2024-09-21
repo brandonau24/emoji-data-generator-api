@@ -104,8 +104,14 @@ func ParseEmojis(unicodeBaseUrl string, annotations map[string]Annotation) (map[
 
 			character := parseEmojiCharacter(emojiFields)
 			codepoints := parseCodepoints(emojiFields)
-			name := parseEmojiName(emojiFields)
 			emojiAnnotations := annotations[codepoints]
+
+			var name string
+			if len(emojiAnnotations.Tts) > 0 {
+				name = emojiAnnotations.Tts[0]
+			} else {
+				name = parseEmojiName(emojiFields)
+			}
 
 			newEmoji := Emoji{
 				Character:   character,
