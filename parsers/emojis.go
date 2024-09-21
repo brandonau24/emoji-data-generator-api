@@ -18,8 +18,10 @@ type Emoji struct {
 	Name        string   `json:"name"`
 }
 
-const UNICODE_BASE_URL = "https://unicode.org"
-const FULLY_QUALIFIED = "fully-qualified"
+const (
+	FULLY_QUALIFIED  = "fully-qualified"
+	UNICODE_BASE_URL = "https://unicode.org"
+)
 
 func parseCodepoints(emojiFields []string) string {
 	semicolonIndex := slices.Index(emojiFields, ";")
