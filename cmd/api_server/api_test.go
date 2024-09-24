@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/parsers"
+	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/request_handlers"
 )
 
 func TestEmojiParserApi(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	emojiHandler := EmojiHandler{}
+	emojiHandler := request_handlers.EmojisHandler{}
 	responseRecorder := httptest.NewRecorder()
 
 	emojiHandler.ServeHTTP(responseRecorder, request)
@@ -42,7 +43,7 @@ func TestEmojiParserApi(t *testing.T) {
 
 func TestApiOnlyAcceptsGetRequest(t *testing.T) {
 	unallowedHttpMethods := []string{http.MethodConnect, http.MethodDelete, http.MethodPost, http.MethodHead, http.MethodPatch, http.MethodDelete, http.MethodPut, http.MethodTrace}
-	emojiHandler := EmojiHandler{}
+	emojiHandler := request_handlers.EmojisHandler{}
 
 	for _, method := range unallowedHttpMethods {
 		request := httptest.NewRequest(method, "/", nil)
