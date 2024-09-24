@@ -57,6 +57,10 @@ func fetchEmojiDataFile(url string) (*http.Response, error) {
 func (g EmojiDataGenerator) Generate(urlProvider providers.DataUrlProvider) (map[string][]Emoji, error) {
 	annotations := parsers.ParseAnnotations(urlProvider)
 
+	if len(annotations) == 0 {
+		return nil, fmt.Errorf("could not get unicode annotations")
+	}
+
 	var currentGroup string
 
 	emojis := make(map[string][]Emoji, 0)

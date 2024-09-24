@@ -20,7 +20,18 @@ func TestParseEmojisSkipsComments(t *testing.T) {
 
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(""))
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😀": {
+						"default": ["one"],
+						"tts": ["grinning face"]
+									}
+								}
+					}
+		}
+`))
 		}
 	}))
 	defer mockHttpServer.Close()
@@ -45,7 +56,18 @@ func TestParseEmojisSetsCodepoint(t *testing.T) {
 
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(""))
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😀": {
+						"default": ["one"],
+						"tts": ["grinning face"]
+									}
+								}
+					}
+		}
+`))
 		}
 	}))
 
@@ -72,7 +94,18 @@ func TestParseEmojisSetsCodepoints(t *testing.T) {
 
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(""))
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😀": {
+						"default": ["one"],
+						"tts": ["grinning face"]
+									}
+								}
+					}
+		}
+`))
 		}
 	}))
 
@@ -104,8 +137,8 @@ func TestParseEmojisSetsNameWithFirstNameFromTtsList(t *testing.T) {
 			"annotations": {
 				"annotations": {
 					"😀": {
-						default: ["one"],
-						tts: ["grinning face"]
+						"default": ["one"],
+						"tts": ["grinning face"]
 									}
 								}
 					}
@@ -140,7 +173,18 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # �
 
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(""))
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😀": {
+						"default": ["one"],
+						"tts": ["grinning face"]
+									}
+								}
+					}
+		}
+`))
 		}
 	}))
 
@@ -175,7 +219,18 @@ func TestParseEmojisGroupsEmojis(t *testing.T) {
 
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(""))
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😀": {
+						"default": ["one"],
+						"tts": ["grinning face"]
+									}
+								}
+					}
+		}
+`))
 		}
 	}))
 
@@ -289,7 +344,18 @@ func TestParseEmojisSetsCharacter(t *testing.T) {
 
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(""))
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😀": {
+						"default": ["one"],
+						"tts": ["grinning face"]
+									}
+								}
+					}
+		}
+`))
 		}
 	}))
 
@@ -322,11 +388,45 @@ func TestFetchEmojiDataFileFails(t *testing.T) {
 
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(""))
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😀": {
+						"default": ["one"],
+						"tts": ["grinning face"]
+									}
+								}
+					}
+		}
+`))
 		}
 	}))
 
 	defer mockHttpServer.Close()
+
+	emojiDataGenerator := EmojiDataGenerator{}
+	_, err := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
+		BaseUrl: mockHttpServer.URL,
+	})
+
+	if err == nil {
+		t.Errorf("Expected parser to return error on a failed request")
+	}
+}
+
+func TestEmptyAnnotationsReturnsError(t *testing.T) {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Failed test request"))
+		}
+
+		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Failed test request"))
+		}
+	}))
 
 	emojiDataGenerator := EmojiDataGenerator{}
 	_, err := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
