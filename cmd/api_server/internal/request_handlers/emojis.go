@@ -36,7 +36,9 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("Request body contains Invalid JSON"))
 		}
 
-		if _, err := strconv.Atoi(requestBody.Version); err != nil {
+		_, parseError := strconv.ParseFloat(requestBody.Version, 64)
+
+		if parseError != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("%v is not a number. The version should be a number e.g. 15.1"))
 
