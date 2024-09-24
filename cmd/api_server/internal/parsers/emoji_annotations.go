@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
 )
 
 type AnnotationsFile struct {
@@ -19,20 +21,13 @@ type Annotation struct {
 	Tts     []string
 }
 
-const BASE_GITHUBUSERCONTENT_URL = "https://raw.githubusercontent.com"
-
-func fetchUnicodeAnnotations(baseUrl string) (*http.Response, error) {
-	base := baseUrl
-	if baseUrl == "" {
-		base = BASE_GITHUBUSERCONTENT_URL
-	}
-
-	annotationsResponse, err := http.Get(fmt.Sprintf("%v/unicode-org/cldr-json/refs/heads/main/cldr-json/cldr-annotations-modern/annotations/en/annotations.json", base))
+func fetchUnicodeAnnotations(url string) (*http.Response, error) {
+	annotationsResponse, err := http.Get(url)
 
 	if err != nil {
 		log.Println(err.Error())
 
-		return nil, fmt.Errorf("could not make connect to %v", baseUrl)
+		return nil, fmt.Errorf("could not make connect to %v", url)
 	}
 
 	if annotationsResponse.StatusCode != http.StatusOK {
@@ -40,15 +35,15 @@ func fetchUnicodeAnnotations(baseUrl string) (*http.Response, error) {
 		log.Printf("Unicode Annotations File - HTTP Status Code: %v", annotationsResponse.StatusCode)
 		log.Printf("Unicode Annotations File - Response Body: %v", string(responseBytes))
 
-		return nil, fmt.Errorf("could not make successful request to %v", BASE_GITHUBUSERCONTENT_URL)
+		return nil, fmt.Errorf("could not make successful request to %v", url)
 	}
 
 	return annotationsResponse, nil
 
 }
 
-func ParseAnnotations(baseUrl string) map[string]Annotation {
-	annotationsResponse, err := fetchUnicodeAnnotations(baseUrl)
+func ParseAnnotations(p providers.DataUrlProvider) map[string]Annotation {
+	annotationsResponse, err := fetchUnicodeAnnotations(p.GetUnicodeAnnotationsUrl())
 
 	if err != nil {
 		return nil

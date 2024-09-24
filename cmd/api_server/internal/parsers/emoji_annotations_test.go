@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	parsers_tests "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/parsers/internal"
 )
 
 func TestParseAnnotations(t *testing.T) {
-	unicodeGithubTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/unicode-org/cldr-json/refs/heads/main/cldr-json/cldr-annotations-modern/annotations/en/annotations.json" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == parsers_tests.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`
 {
@@ -32,9 +34,11 @@ func TestParseAnnotations(t *testing.T) {
 		}
 	}))
 
-	defer unicodeGithubTestServer.Close()
+	defer mockHttpServer.Close()
 
-	annotations := ParseAnnotations(unicodeGithubTestServer.URL)
+	annotations := ParseAnnotations(parsers_tests.MockDataUrlProvider{
+		BaseUrl: mockHttpServer.URL,
+	})
 
 	expectedAnnotations := []string{"face", "grin", "grinning face"}
 
@@ -43,7 +47,7 @@ func TestParseAnnotations(t *testing.T) {
 		t.Errorf("Failed to find annotations for 😀")
 	}
 
-	if !areAnnotationsEqual(emojiAnnotations.Default, expectedAnnotations) {
+	if !parsers_tests.AreAnnotationsEqual(emojiAnnotations.Default, expectedAnnotations) {
 		t.Errorf("Failed to map annotations. Received %v, expected %v", emojiAnnotations, expectedAnnotations)
 	}
 

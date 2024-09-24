@@ -19,9 +19,11 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		encoder := json.NewEncoder(&buffer)
 		encoder.SetEscapeHTML(false)
 
-		emojiAnnotations := parsers.ParseAnnotations("")
+		urlProvider := providers.UnicodeDataUrlProvider{}
 
-		emojis, parseError := parsers.ParseEmojis(providers.UnicodeDataUrlProvider{}, emojiAnnotations)
+		emojiAnnotations := parsers.ParseAnnotations(urlProvider)
+
+		emojis, parseError := parsers.ParseEmojis(urlProvider, emojiAnnotations)
 
 		if parseError != nil {
 			w.WriteHeader(http.StatusInternalServerError)
