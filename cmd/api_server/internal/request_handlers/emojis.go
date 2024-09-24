@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
-	"strconv"
 
 	data_generation "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal"
 	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
@@ -16,7 +16,7 @@ import (
 type EmojisHandler struct{}
 
 type EmojisRequestBody struct {
-	Version string
+	Version float64
 }
 
 func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -28,24 +28,25 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		requestBodyBytes, _ := io.ReadAll(r.Body)
 
-		var requestBody EmojisRequestBody
-		jsonErr := json.Unmarshal(requestBodyBytes, &requestBody)
+		var version float64
+		if len(requestBodyBytes) > 0 {
+			var requestBody EmojisRequestBody
+			jsonErr := json.Unmarshal(requestBodyBytes, &requestBody)
 
-		if jsonErr != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Request body contains Invalid JSON"))
+			if jsonErr != nil {
+				log.Println(jsonErr.Error())
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("Request body contains Invalid JSON"))
+
+				return
+			}
+
+			version = requestBody.Version
 		}
 
-		_, parseError := strconv.ParseFloat(requestBody.Version, 64)
-
-		if parseError != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("%v is not a number. The version should be a number e.g. 15.1"))
-
-			return
+		urlProvider := providers.UnicodeDataUrlProvider{
+			Version: version,
 		}
-
-		urlProvider := providers.UnicodeDataUrlProvider{}
 		emojiDataGenerator := data_generation.EmojiDataGenerator{}
 		emojis, err := emojiDataGenerator.Generate(urlProvider)
 

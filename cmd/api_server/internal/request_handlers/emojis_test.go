@@ -26,10 +26,25 @@ func TestApiOnlyAcceptsGetRequest(t *testing.T) {
 	}
 }
 
+// func TestApiAllowsEmptyRequestBody(t *testing.T) {
+// 	request := httptest.NewRequest(http.MethodGet, "/", nil)
+// 	responseRecorder := httptest.NewRecorder()
+
+// 	emojiHandler := EmojisHandler{}
+// 	emojiHandler.ServeHTTP(responseRecorder, request)
+
+// 	response := responseRecorder.Result()
+// 	defer response.Body.Close()
+
+// 	if response.StatusCode != http.StatusOK {
+// 		t.Errorf("Expected 200 status code, received %v", response.StatusCode)
+// 	}
+// }
+
 func TestApiRejectsNonNumberVersion(t *testing.T) {
 	requestBody := strings.NewReader(`
 {
-	version: abc
+	"version": "abc"
 }
 	`)
 
@@ -50,7 +65,7 @@ func TestApiRejectsNonNumberVersion(t *testing.T) {
 func TestApiRejectsInvalidJson(t *testing.T) {
 	requestBody := strings.NewReader(`
 	{
-		version: 12.0
+		"version": 12.0
 }
 	}
 		`)

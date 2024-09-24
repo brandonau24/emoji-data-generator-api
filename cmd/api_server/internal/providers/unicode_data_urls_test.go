@@ -19,13 +19,56 @@ func TestGetUnicodeEmojisDataUrlWithoutVersion(t *testing.T) {
 func TestGetUnicodeEmojisDataUrlWithVersion(t *testing.T) {
 	version := "15.0"
 	urlProvider := UnicodeDataUrlProvider{
-		Version: version,
+		Version: 15.0,
 	}
 
 	url := urlProvider.GetUnicodeEmojisDataUrl()
 
 	if !strings.Contains(url, version) {
 		t.Errorf("%v unicode version is not used for url when provided. Got %v", version, url)
+
+	}
+}
+
+func TestGetUnicodeEmojisDataUrlTruncatesVersionToOneDecimalPlace(t *testing.T) {
+	var version float64
+	version = 15.11
+
+	var urlProvider DataUrlProvider
+	urlProvider = UnicodeDataUrlProvider{
+		Version: version,
+	}
+
+	var url string
+	url = urlProvider.GetUnicodeEmojisDataUrl()
+
+	if !strings.Contains(url, "/15.1/") {
+		t.Errorf("%v unicode version was not shortened. Got %v", version, url)
+
+	}
+
+	version = 15.15
+
+	urlProvider = UnicodeDataUrlProvider{
+		Version: version,
+	}
+
+	url = urlProvider.GetUnicodeEmojisDataUrl()
+
+	if !strings.Contains(url, "/15.2/") {
+		t.Errorf("%v unicode version was not shortened. Got %v", version, url)
+
+	}
+
+	version = 1
+	urlProvider = UnicodeDataUrlProvider{
+		Version: version,
+	}
+
+	url = urlProvider.GetUnicodeEmojisDataUrl()
+
+	if !strings.Contains(url, "/1.0/") {
+		t.Errorf("%v unicode version was not shortened. Got %v", version, url)
 
 	}
 }
