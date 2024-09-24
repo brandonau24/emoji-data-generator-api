@@ -7,19 +7,34 @@ import (
 	"testing"
 )
 
+const mockUnicodeEmojisPath = "/mock/emoji.txt"
+
+type MockDataUrlProvider struct {
+	baseUrl string
+}
+
+func (p MockDataUrlProvider) GetUnicodeEmojisDataUrl() string {
+	return p.baseUrl + mockUnicodeEmojisPath
+}
+
+func (p MockDataUrlProvider) GetUnicodeAnnotationsUrl() string {
+	return ""
+}
+
 func TestParseEmojisSkipsComments(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# This is a comment
 # This is another comment
 # This is the last comment`))
 		}
 	}))
+	defer mockHttpServer.Close()
 
-	defer emojisHttpTestServer.Close()
-
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{})
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{})
 
 	if len(emojis) != 0 {
 		t.Errorf("Failed to parse comments")
@@ -27,17 +42,19 @@ func TestParseEmojisSkipsComments(t *testing.T) {
 }
 
 func TestParseEmojisSetsCodepoint(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: group1
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{
 		"😀": {
 			Default: []string{"one"},
 			Tts:     []string{"tts"},
@@ -51,17 +68,19 @@ func TestParseEmojisSetsCodepoint(t *testing.T) {
 }
 
 func TestParseEmojisSetsCodepoints(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: group1
 1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling`))
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{
 		"😮‍💨": {
 			Default: []string{"one"},
 			Tts:     []string{"tts"},
@@ -75,17 +94,19 @@ func TestParseEmojisSetsCodepoints(t *testing.T) {
 }
 
 func TestParseEmojisSetsName(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: group1
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{
 		"😀": {
 			Default: []string{"one"},
 			Tts:     []string{"grinning face"},
@@ -99,17 +120,19 @@ func TestParseEmojisSetsName(t *testing.T) {
 }
 
 func TestParseEmojisSetsFirstNameFromTtsList(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: group1
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{
 		"😀": {
 			Default: []string{"one"},
 			Tts:     []string{"grinning face", "not a name to be used", "another name not to be used"},
@@ -123,8 +146,8 @@ func TestParseEmojisSetsFirstNameFromTtsList(t *testing.T) {
 }
 
 func TestParseEmojiSelectsFullyQualifiedEmojis(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(` # group: group1
 F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
@@ -134,9 +157,11 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # �
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{
 		"😀": {
 			Default: []string{"one"},
 			Tts:     []string{"tts"},
@@ -150,8 +175,8 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # �
 }
 
 func TestParseEmojisGroupsEmojis(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: Smileys & Emotion
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
@@ -166,9 +191,11 @@ func TestParseEmojisGroupsEmojis(t *testing.T) {
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{
 		"😀": {
 			Default: []string{"one"},
 			Tts:     []string{"tts"},
@@ -197,8 +224,8 @@ func TestParseEmojisGroupsEmojis(t *testing.T) {
 }
 
 func TestParseEmojisSetsAnnotations(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: Smileys & Emotion
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
@@ -208,12 +235,14 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
 	smileyAnnotations := []string{"face", "grin", "grinning face"}
 	faceCloudAnnotations := []string{"absentminded", "face in clouds", "face in the fog", "head in clouds"}
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{
 		"😀": {
 			Default: smileyAnnotations,
 			Tts:     []string{"grinning face"},
@@ -243,8 +272,8 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 }
 
 func TestParseEmojisSetsCharacter(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(` # group: group1
 1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling
@@ -253,9 +282,11 @@ func TestParseEmojisSetsCharacter(t *testing.T) {
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
-	emojis, _ := ParseEmojis(emojisHttpTestServer.URL, map[string]Annotation{
+	emojis, _ := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, map[string]Annotation{
 		"😮‍💨": {
 			Default: []string{"one"},
 			Tts:     []string{"tts"},
@@ -276,16 +307,18 @@ func TestParseEmojisSetsCharacter(t *testing.T) {
 }
 
 func TestFetchEmojiDataFileFails(t *testing.T) {
-	emojisHttpTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/Public/emoji/16.0/emoji-test.txt" {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockUnicodeEmojisPath {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Failed test request"))
 		}
 	}))
 
-	defer emojisHttpTestServer.Close()
+	defer mockHttpServer.Close()
 
-	_, err := ParseEmojis(emojisHttpTestServer.URL, nil)
+	_, err := ParseEmojis(MockDataUrlProvider{
+		baseUrl: mockHttpServer.URL,
+	}, nil)
 
 	if err == nil {
 		t.Errorf("Expected parser to return error on a failed request")

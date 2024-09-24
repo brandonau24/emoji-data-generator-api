@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/parsers"
+	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
 )
 
 type EmojisHandler struct{}
@@ -20,7 +21,7 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		emojiAnnotations := parsers.ParseAnnotations("")
 
-		emojis, parseError := parsers.ParseEmojis("", emojiAnnotations)
+		emojis, parseError := parsers.ParseEmojis(providers.UnicodeDataUrlProvider{}, emojiAnnotations)
 
 		if parseError != nil {
 			w.WriteHeader(http.StatusInternalServerError)

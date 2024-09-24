@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
 )
 
 type Emoji struct {
@@ -47,34 +49,29 @@ func parseEmojiCharacter(emojiFields []string) string {
 	return emojiFields[emojiCharacterIndex]
 }
 
-func fetchEmojiDataFile(unicodeBaseUrl string) (*http.Response, error) {
-	baseUrl := unicodeBaseUrl
-	if baseUrl == "" {
-		baseUrl = UNICODE_BASE_URL
-	}
-
-	emojisResponse, err := http.Get(fmt.Sprintf("%v/Public/emoji/16.0/emoji-test.txt", baseUrl))
+func fetchEmojiDataFile(url string) (*http.Response, error) {
+	emojisResponse, err := http.Get(url)
 
 	if err != nil {
 		log.Println(err.Error())
-		return nil, fmt.Errorf("could not make connect to %v", baseUrl)
+		return nil, fmt.Errorf("could not make connect to %v", url)
 	} else if emojisResponse.StatusCode != http.StatusOK {
 		responseBytes, _ := io.ReadAll(emojisResponse.Body)
 		log.Printf("Emojis Data File - HTTP Status Code: %v", emojisResponse.StatusCode)
 		log.Printf("Emojis Data File - Response Body: %v", string(responseBytes))
 
-		return nil, fmt.Errorf("could not make successful request to unicode.org")
+		return nil, fmt.Errorf("could not make successful request to %v", url)
 	}
 
 	return emojisResponse, nil
 }
 
-func ParseEmojis(unicodeBaseUrl string, annotations map[string]Annotation) (map[string][]Emoji, error) {
+func ParseEmojis(urlProvider providers.DataUrlProvider, annotations map[string]Annotation) (map[string][]Emoji, error) {
 	var currentGroup string
 
 	emojis := make(map[string][]Emoji, 0)
 
-	emojiDataFileResponse, fetchErr := fetchEmojiDataFile(unicodeBaseUrl)
+	emojiDataFileResponse, fetchErr := fetchEmojiDataFile(urlProvider.GetUnicodeEmojisDataUrl())
 
 	if fetchErr != nil {
 		return nil, fetchErr
