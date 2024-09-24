@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/brandonau24/emoji-data-generator/parsers"
+	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/parsers"
 )
 
 type EmojiHandler struct{}

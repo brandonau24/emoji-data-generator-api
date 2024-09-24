@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/brandonau24/emoji-data-generator/parsers"
+	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/parsers"
 )
 
 func TestEmojiParserApi(t *testing.T) {

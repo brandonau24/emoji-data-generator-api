@@ -16,7 +16,7 @@ FROM unit_tests AS build
 
 RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/emoji-data-generator-api
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/emoji-data-generator-api ./cmd/api_server/main.go
 
 FROM docker.io/library/alpine
 
