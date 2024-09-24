@@ -1,14 +1,24 @@
 package providers
 
+import "fmt"
+
 type DataUrlProvider interface {
 	GetUnicodeEmojisDataUrl() string
 	GetUnicodeAnnotationsUrl() string
 }
 
-type UnicodeDataUrlProvider struct{}
+type UnicodeDataUrlProvider struct {
+	Version string
+}
 
 func (p UnicodeDataUrlProvider) GetUnicodeEmojisDataUrl() string {
-	return "https://unicode.org/Public/emoji/15.1/emoji-test.txt"
+	url := "https://unicode.org/Public/emoji/%v/emoji-test.txt"
+
+	if p.Version == "" {
+		return fmt.Sprintf(url, "latest")
+	}
+
+	return fmt.Sprintf(url, p.Version)
 }
 
 func (p UnicodeDataUrlProvider) GetUnicodeAnnotationsUrl() string {
