@@ -38,9 +38,9 @@ func TestParseAnnotations(t *testing.T) {
 
 	expectedAnnotations := []string{"face", "grin", "grinning face"}
 
-	emojiAnnotations, ok := annotations["1F600"]
+	emojiAnnotations, ok := annotations["😀"]
 	if !ok {
-		t.Errorf("Failed to find annotations for 1F600")
+		t.Errorf("Failed to find annotations for 😀")
 	}
 
 	if !areAnnotationsEqual(emojiAnnotations.Default, expectedAnnotations) {

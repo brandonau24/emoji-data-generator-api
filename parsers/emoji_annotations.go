@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type AnnotationsFile struct {
@@ -70,17 +69,5 @@ func ParseAnnotations(baseUrl string) map[string]Annotation {
 		return nil
 	}
 
-	parsedAnnotations := make(map[string]Annotation, 0)
-
-	nestedAnnotations := annotationsFileMap.Annotations.Annotations
-
-	for emoji, emojiAnnotations := range nestedAnnotations {
-		emojiCodepoints := []rune(emoji)
-		emojiCodepointsHexadecimal := fmt.Sprintf("%X", emojiCodepoints)
-		emojiCodepointsHexadecimal = strings.ReplaceAll(emojiCodepointsHexadecimal, "[", "")
-		emojiCodepointsHexadecimal = strings.ReplaceAll(emojiCodepointsHexadecimal, "]", "")
-		parsedAnnotations[emojiCodepointsHexadecimal] = emojiAnnotations
-	}
-
-	return parsedAnnotations
+	return annotationsFileMap.Annotations.Annotations
 }

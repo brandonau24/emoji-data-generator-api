@@ -104,7 +104,7 @@ func ParseEmojis(unicodeBaseUrl string, annotations map[string]Annotation) (map[
 
 			character := parseEmojiCharacter(emojiFields)
 			codepoints := parseCodepoints(emojiFields)
-			emojiAnnotations := annotations[codepoints]
+			emojiAnnotations := annotations[character]
 
 			var name string
 			if len(emojiAnnotations.Tts) > 0 {
