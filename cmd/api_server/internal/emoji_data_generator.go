@@ -71,8 +71,6 @@ func (g EmojiDataGenerator) Generate(urlProvider providers.DataUrlProvider) (map
 
 	scanner := bufio.NewScanner(emojiDataFileResponse.Body)
 
-	emojiParser := parsers.EmojiParser{}
-
 	for scanner.Scan() {
 		line := scanner.Text()
 		line = strings.TrimSpace(line)
@@ -91,15 +89,15 @@ func (g EmojiDataGenerator) Generate(urlProvider providers.DataUrlProvider) (map
 				continue
 			}
 
-			character := emojiParser.ParseEmojiCharacter(emojiFields)
-			codepoints := emojiParser.ParseCodepoints(emojiFields)
+			character := parsers.ParseEmojiCharacter(emojiFields)
+			codepoints := parsers.ParseCodepoints(emojiFields)
 			emojiAnnotations := annotations[character]
 
 			var name string
 			if len(emojiAnnotations.Tts) > 0 {
 				name = emojiAnnotations.Tts[0]
 			} else {
-				name = emojiParser.ParseEmojiName(emojiFields)
+				name = parsers.ParseEmojiName(emojiFields)
 			}
 
 			newEmoji := Emoji{
