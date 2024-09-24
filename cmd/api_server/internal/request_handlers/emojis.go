@@ -29,7 +29,12 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		requestBodyBytes, _ := io.ReadAll(r.Body)
 
 		var requestBody EmojisRequestBody
-		json.Unmarshal(requestBodyBytes, &requestBody)
+		jsonErr := json.Unmarshal(requestBodyBytes, &requestBody)
+
+		if jsonErr != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Request body contains Invalid JSON"))
+		}
 
 		if _, err := strconv.Atoi(requestBody.Version); err != nil {
 			w.WriteHeader(http.StatusBadRequest)

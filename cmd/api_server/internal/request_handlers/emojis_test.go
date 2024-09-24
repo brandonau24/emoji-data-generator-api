@@ -46,3 +46,25 @@ func TestApiRejectsNonNumberVersion(t *testing.T) {
 		t.Errorf("Expected 400 status code, received %v", response.StatusCode)
 	}
 }
+
+func TestApiRejectsInvalidJson(t *testing.T) {
+	requestBody := strings.NewReader(`
+	{
+		version: 12.0
+}
+	}
+		`)
+
+	request := httptest.NewRequest(http.MethodGet, "/", requestBody)
+	responseRecorder := httptest.NewRecorder()
+
+	emojiHandler := EmojisHandler{}
+	emojiHandler.ServeHTTP(responseRecorder, request)
+
+	response := responseRecorder.Result()
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected 400 status code, received %v", response.StatusCode)
+	}
+}
