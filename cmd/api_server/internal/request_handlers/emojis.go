@@ -5,7 +5,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strconv"
 
 	data_generation "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal"
 	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
@@ -13,11 +15,28 @@ import (
 
 type EmojisHandler struct{}
 
+type EmojisRequestBody struct {
+	Version string
+}
+
 func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		var buffer bytes.Buffer
 		encoder := json.NewEncoder(&buffer)
 		encoder.SetEscapeHTML(false)
+
+		defer r.Body.Close()
+		requestBodyBytes, _ := io.ReadAll(r.Body)
+
+		var requestBody EmojisRequestBody
+		json.Unmarshal(requestBodyBytes, &requestBody)
+
+		if _, err := strconv.Atoi(requestBody.Version); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("%v is not a number. The version should be a number e.g. 15.1"))
+
+			return
+		}
 
 		urlProvider := providers.UnicodeDataUrlProvider{}
 		emojiDataGenerator := data_generation.EmojiDataGenerator{}

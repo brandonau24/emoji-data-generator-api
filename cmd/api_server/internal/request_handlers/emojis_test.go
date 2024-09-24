@@ -3,6 +3,7 @@ package request_handlers
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -22,5 +23,26 @@ func TestApiOnlyAcceptsGetRequest(t *testing.T) {
 		if response.StatusCode != http.StatusMethodNotAllowed {
 			t.Errorf("Expected 405 status code, received %v", response.StatusCode)
 		}
+	}
+}
+
+func TestApiRejectsNonNumberVersion(t *testing.T) {
+	requestBody := strings.NewReader(`
+{
+	version: abc
+}
+	`)
+
+	request := httptest.NewRequest(http.MethodGet, "/", requestBody)
+	responseRecorder := httptest.NewRecorder()
+
+	emojiHandler := EmojisHandler{}
+	emojiHandler.ServeHTTP(responseRecorder, request)
+
+	response := responseRecorder.Result()
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected 400 status code, received %v", response.StatusCode)
 	}
 }
