@@ -60,6 +60,7 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		encodeError := encoder.Encode(emojis)
 
 		if encodeError == nil {
+			w.Header().Set("Content-Type", "application/json")
 			w.Write(buffer.Bytes())
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
