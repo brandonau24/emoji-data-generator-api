@@ -6,12 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	parsers_tests "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/parsers/internal"
+	test_helpers "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/internal"
 )
 
 func TestParseAnnotations(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == parsers_tests.MOCK_UNICODE_ANNOTATIONS_PATH {
+		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`
 {
@@ -36,7 +36,7 @@ func TestParseAnnotations(t *testing.T) {
 
 	defer mockHttpServer.Close()
 
-	annotations := ParseAnnotations(parsers_tests.MockDataUrlProvider{
+	annotations := ParseAnnotations(test_helpers.MockDataUrlProvider{
 		BaseUrl: mockHttpServer.URL,
 	})
 
@@ -47,7 +47,7 @@ func TestParseAnnotations(t *testing.T) {
 		t.Errorf("Failed to find annotations for 😀")
 	}
 
-	if !parsers_tests.AreAnnotationsEqual(emojiAnnotations.Default, expectedAnnotations) {
+	if !test_helpers.AreAnnotationsEqual(emojiAnnotations.Default, expectedAnnotations) {
 		t.Errorf("Failed to map annotations. Received %v, expected %v", emojiAnnotations, expectedAnnotations)
 	}
 

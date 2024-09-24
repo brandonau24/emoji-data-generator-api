@@ -1,38 +1,21 @@
 package parsers
 
 import (
-	"bufio"
-	"fmt"
-	"io"
-	"log"
-	"net/http"
 	"regexp"
 	"slices"
 	"strings"
-
-	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
 )
 
-type Emoji struct {
-	Character   string   `json:"character"`
-	Codepoints  string   `json:"codepoints"`
-	Annotations []string `json:"annotations"`
-	Name        string   `json:"name"`
-}
+type EmojiParser struct{}
 
-const (
-	FULLY_QUALIFIED  = "fully-qualified"
-	UNICODE_BASE_URL = "https://unicode.org"
-)
-
-func parseCodepoints(emojiFields []string) string {
+func (p EmojiParser) ParseCodepoints(emojiFields []string) string {
 	semicolonIndex := slices.Index(emojiFields, ";")
 	codepoints := emojiFields[0:semicolonIndex]
 
 	return strings.Join(codepoints, " ")
 }
 
-func parseEmojiName(emojiFields []string) string {
+func (p EmojiParser) ParseEmojiName(emojiFields []string) string {
 	emojiVersionRegex := regexp.MustCompile(`E\d+\.\d+`)
 	emojiVersionIndex := slices.IndexFunc(emojiFields, func(s string) bool {
 		return emojiVersionRegex.MatchString(s)
@@ -43,89 +26,8 @@ func parseEmojiName(emojiFields []string) string {
 	return strings.Join(name, " ")
 }
 
-func parseEmojiCharacter(emojiFields []string) string {
+func (p EmojiParser) ParseEmojiCharacter(emojiFields []string) string {
 	emojiCharacterIndex := slices.Index(emojiFields, "#") + 1
 
 	return emojiFields[emojiCharacterIndex]
-}
-
-func fetchEmojiDataFile(url string) (*http.Response, error) {
-	emojisResponse, err := http.Get(url)
-
-	if err != nil {
-		log.Println(err.Error())
-		return nil, fmt.Errorf("could not make connect to %v", url)
-	} else if emojisResponse.StatusCode != http.StatusOK {
-		responseBytes, _ := io.ReadAll(emojisResponse.Body)
-		log.Printf("Emojis Data File - HTTP Status Code: %v", emojisResponse.StatusCode)
-		log.Printf("Emojis Data File - Response Body: %v", string(responseBytes))
-
-		return nil, fmt.Errorf("could not make successful request to %v", url)
-	}
-
-	return emojisResponse, nil
-}
-
-func ParseEmojis(urlProvider providers.DataUrlProvider, annotations map[string]Annotation) (map[string][]Emoji, error) {
-	var currentGroup string
-
-	emojis := make(map[string][]Emoji, 0)
-
-	emojiDataFileResponse, fetchErr := fetchEmojiDataFile(urlProvider.GetUnicodeEmojisDataUrl())
-
-	if fetchErr != nil {
-		return nil, fetchErr
-	}
-
-	defer emojiDataFileResponse.Body.Close()
-
-	scanner := bufio.NewScanner(emojiDataFileResponse.Body)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		line = strings.TrimSpace(line)
-
-		if strings.Index(line, "#") == 0 {
-			if strings.Contains(line, "# group: ") {
-				startOfGroupName := strings.Index(line, ":") + 2
-				currentGroup = line[startOfGroupName:]
-			} else {
-				continue
-			}
-		} else {
-			emojiFields := strings.Fields(line)
-
-			if slices.Index(emojiFields, FULLY_QUALIFIED) == -1 {
-				continue
-			}
-
-			character := parseEmojiCharacter(emojiFields)
-			codepoints := parseCodepoints(emojiFields)
-			emojiAnnotations := annotations[character]
-
-			var name string
-			if len(emojiAnnotations.Tts) > 0 {
-				name = emojiAnnotations.Tts[0]
-			} else {
-				name = parseEmojiName(emojiFields)
-			}
-
-			newEmoji := Emoji{
-				Character:   character,
-				Codepoints:  codepoints,
-				Name:        name,
-				Annotations: emojiAnnotations.Default,
-			}
-
-			emojisInGroup, ok := emojis[currentGroup]
-			if ok {
-				emojis[currentGroup] = append(emojisInGroup, newEmoji)
-			} else {
-				emojis[currentGroup] = []Emoji{newEmoji}
-			}
-		}
-
-	}
-
-	return emojis, nil
 }

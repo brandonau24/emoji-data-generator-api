@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/parsers"
+	data_generation "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal"
 	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
 )
 
@@ -20,14 +20,12 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		encoder.SetEscapeHTML(false)
 
 		urlProvider := providers.UnicodeDataUrlProvider{}
+		emojiDataGenerator := data_generation.EmojiDataGenerator{}
+		emojis, err := emojiDataGenerator.Generate(urlProvider)
 
-		emojiAnnotations := parsers.ParseAnnotations(urlProvider)
-
-		emojis, parseError := parsers.ParseEmojis(urlProvider, emojiAnnotations)
-
-		if parseError != nil {
+		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(parseError.Error()))
+			w.Write([]byte(err.Error()))
 
 			return
 		}
