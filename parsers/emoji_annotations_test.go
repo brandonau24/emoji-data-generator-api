@@ -1,11 +1,17 @@
+//nolint:errcheck
 package parsers
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestParseAnnotations(t *testing.T) {
-	annotations := ParseAnnotations(`
+	unicodeGithubTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.String() == "/unicode-org/cldr-json/refs/heads/main/cldr-json/cldr-annotations-modern/annotations/en/annotations.json" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`
 {
 	"annotations": {
 		"annotations": {
@@ -22,7 +28,13 @@ func TestParseAnnotations(t *testing.T) {
 		}
 	}
 }
-`)
+`))
+		}
+	}))
+
+	defer unicodeGithubTestServer.Close()
+
+	annotations := ParseAnnotations(unicodeGithubTestServer.URL)
 
 	expectedAnnotations := []string{"face", "grin", "grinning face"}
 

@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/brandonau24/emoji-data-generator/parsers"
-	"github.com/brandonau24/emoji-data-generator/readers"
 )
 
 type EmojiHandler struct{}
@@ -19,9 +18,7 @@ func (h *EmojiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		encoder := json.NewEncoder(&buffer)
 		encoder.SetEscapeHTML(false)
 
-		emojiAnnotationsFile := readers.ReadEmojiAnnotationsFile()
-
-		emojiAnnotations := parsers.ParseAnnotations(emojiAnnotationsFile)
+		emojiAnnotations := parsers.ParseAnnotations("")
 
 		emojis, parseError := parsers.ParseEmojis("", emojiAnnotations)
 
