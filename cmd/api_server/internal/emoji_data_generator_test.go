@@ -532,3 +532,81 @@ func Test_Generate_EmptyAnnotations(t *testing.T) {
 		t.Errorf("Expected parser to return error on a failed request")
 	}
 }
+
+func Test_Generate_MultipleUnicodeVersions(t *testing.T) {
+	version1 := 5.0
+	version2 := 10.0
+
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPathVersion1 := mockDataUrlProvider.BuildUrlPath(version1)
+	mockEmojiPathVersion2 := mockDataUrlProvider.BuildUrlPath(version2)
+
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockEmojiPathVersion1 {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: group1
+1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
+1F603                                                  ; fully-qualified     # 😃 E0.6 grinning face with big eyes
+1F604                                                  ; fully-qualified     # 😄 E0.6 grinning face with smiling eyes
+1F601                                                  ; fully-qualified     # 😁 E0.6 beaming face with smiling eyes
+1F606                                                  ; fully-qualified     # 😆 E0.6 grinning squinting face
+1F605                                                  ; fully-qualified     # 😅 E0.6 grinning face with sweat
+1F923                                                  ; fully-qualified     # 🤣 E3.0 rolling on the floor laughing
+`))
+		}
+
+		if r.URL.Path == mockEmojiPathVersion2 {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: group1
+1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
+1F603                                                  ; fully-qualified     # 😃 E0.6 grinning face with big eyes
+1F604                                                  ; fully-qualified     # 😄 E0.6 grinning face with smiling eyes
+1F601                                                  ; fully-qualified     # 😁 E0.6 beaming face with smiling eyes
+1F606                                                  ; fully-qualified     # 😆 E0.6 grinning squinting face
+1F605                                                  ; fully-qualified     # 😅 E0.6 grinning face with sweat
+1F923                                                  ; fully-qualified     # 🤣 E3.0 rolling on the floor laughing
+1F602                                                  ; fully-qualified     # 😂 E0.6 face with tears of joy
+1F642                                                  ; fully-qualified     # 🙂 E1.0 slightly smiling face
+1F643                                                  ; fully-qualified     # 🙃 E1.0 upside-down face
+1FAE0                                                  ; fully-qualified     # 🫠 E14.0 melting face
+1F609                                                  ; fully-qualified     # 😉 E0.6 winking face
+1F60A                                                  ; fully-qualified     # 😊 E0.6 smiling face with smiling eyes
+1F607                                                  ; fully-qualified     # 😇 E1.0 smiling face with halo
+`))
+		}
+
+		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`
+			{
+				"annotations": {
+					"annotations": {
+						"😀": {
+							"default": ["one"],
+							"tts": ["grinning face"]
+							}
+							}
+							}
+							}
+							`))
+		}
+	}))
+	defer mockHttpServer.Close()
+
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+
+	version1Emojis, _ := emojiDataGenerator.Generate(version1)
+	version2Emojis, _ := emojiDataGenerator.Generate(version2)
+
+	if len(version2Emojis) < len(version1Emojis) {
+		t.Errorf(`
+		expected %v emojis to have more than %v emojis
+		Version 1 Emojis: %v
+		Version 2 Emojis: %v
+`, version, version2, version1Emojis, version2Emojis)
+	}
+}
