@@ -9,6 +9,8 @@ import (
 	test_helpers "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/internal"
 )
 
+const version = 1.0
+
 func Test_Generate_SkipsComments(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
@@ -36,10 +38,12 @@ func Test_Generate_SkipsComments(t *testing.T) {
 	}))
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: test_helpers.MockDataUrlProvider{
+			BaseUrl: mockHttpServer.URL,
+		},
+	}
+	emojis, _ := emojiDataGenerator.Generate(1.0)
 
 	if len(emojis) != 0 {
 		t.Errorf("Failed to parse comments")
@@ -47,36 +51,42 @@ func Test_Generate_SkipsComments(t *testing.T) {
 }
 
 func Test_Generate_SetsCodepoint(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: group1
-1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
+			1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
 		}
 
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`
-		{
-			"annotations": {
+			{
 				"annotations": {
-					"😀": {
-						"default": ["one"],
-						"tts": ["grinning face"]
-									}
-								}
-					}
-		}
-`))
+					"annotations": {
+						"😀": {
+							"default": ["one"],
+							"tts": ["grinning face"]
+							}
+							}
+							}
+							}
+							`))
 		}
 	}))
-
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: test_helpers.MockDataUrlProvider{
+			BaseUrl: mockHttpServer.URL,
+		},
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
 	emoji := emojis["group1"][0]
 
 	if emoji.Codepoints != "1F600" {
@@ -85,8 +95,11 @@ func Test_Generate_SetsCodepoint(t *testing.T) {
 }
 
 func Test_Generate_SetsCodepoints(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: group1
 1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling`))
@@ -111,10 +124,12 @@ func Test_Generate_SetsCodepoints(t *testing.T) {
 
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
 	emoji := emojis["group1"][0]
 
 	if emoji.Codepoints != "1F62E 200D 1F4A8" {
@@ -123,8 +138,11 @@ func Test_Generate_SetsCodepoints(t *testing.T) {
 }
 
 func Test_Generate_SetsName_WithFirstNameFromAnnotations(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: group1
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
@@ -149,10 +167,12 @@ func Test_Generate_SetsName_WithFirstNameFromAnnotations(t *testing.T) {
 
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
 	emoji := emojis["group1"][0]
 
 	if emoji.Name != "grinning face" {
@@ -161,8 +181,11 @@ func Test_Generate_SetsName_WithFirstNameFromAnnotations(t *testing.T) {
 }
 
 func Test_Generate_SetsName_FromEmojiData_WhenAnnotationsAreMissing(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: group1
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
@@ -187,10 +210,12 @@ func Test_Generate_SetsName_FromEmojiData_WhenAnnotationsAreMissing(t *testing.T
 
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
 	emoji := emojis["group1"][0]
 
 	if emoji.Name != "grinning face" {
@@ -199,8 +224,11 @@ func Test_Generate_SetsName_FromEmojiData_WhenAnnotationsAreMissing(t *testing.T
 }
 
 func Test_Generate_SelectsFullyQualifiedEmojis(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(` # group: group1
 F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
@@ -228,10 +256,12 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # �
 
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
 	emojisInGroup1 := emojis["group1"]
 
 	if len(emojisInGroup1) != 1 {
@@ -240,8 +270,11 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # �
 }
 
 func Test_Generate_GroupsEmojis(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: Smileys & Emotion
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
@@ -274,10 +307,12 @@ func Test_Generate_GroupsEmojis(t *testing.T) {
 
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
 
 	smileyAndEmotionsGroup, smileyAndEmotionOk := emojis["Smileys & Emotion"]
 
@@ -301,8 +336,11 @@ func Test_Generate_GroupsEmojis(t *testing.T) {
 }
 
 func Test_Generate_SetsAnnotations(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# group: Smileys & Emotion
 1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
@@ -345,12 +383,14 @@ func Test_Generate_SetsAnnotations(t *testing.T) {
 
 	defer mockHttpServer.Close()
 
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
 	smileyAnnotations := []string{"face", "grin", "grinning face"}
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
 
 	smileyAndEmotionsGroup, ok := emojis["Smileys & Emotion"]
 	if !ok {
@@ -371,8 +411,11 @@ func Test_Generate_SetsAnnotations(t *testing.T) {
 }
 
 func Test_Generate_SetsCharacter(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(` # group: group1
 1F62E 200D 1F4A8                                       ; fully-qualified     # 😮‍💨 E13.1 face exhaling
@@ -399,10 +442,12 @@ func Test_Generate_SetsCharacter(t *testing.T) {
 
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
 
 	faceExhalingEmoji := emojis["group1"][0]
 
@@ -418,8 +463,11 @@ func Test_Generate_SetsCharacter(t *testing.T) {
 }
 
 func Test_Generatate_EmojiDataFetchFails(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Failed test request"))
 		}
@@ -443,10 +491,12 @@ func Test_Generatate_EmojiDataFetchFails(t *testing.T) {
 
 	defer mockHttpServer.Close()
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	_, err := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	_, err := emojiDataGenerator.Generate(version)
 
 	if err == nil {
 		t.Errorf("Expected parser to return error on a failed request")
@@ -454,8 +504,11 @@ func Test_Generatate_EmojiDataFetchFails(t *testing.T) {
 }
 
 func Test_Generate_EmptyAnnotations(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Failed test request"))
 		}
@@ -466,10 +519,14 @@ func Test_Generate_EmptyAnnotations(t *testing.T) {
 		}
 	}))
 
-	emojiDataGenerator := EmojiDataGenerator{}
-	_, err := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
-		BaseUrl: mockHttpServer.URL,
-	})
+	defer mockHttpServer.Close()
+
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	_, err := emojiDataGenerator.Generate(version)
 
 	if err == nil {
 		t.Errorf("Expected parser to return error on a failed request")

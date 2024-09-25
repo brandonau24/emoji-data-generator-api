@@ -3,20 +3,18 @@ package providers
 import "fmt"
 
 type DataUrlProvider interface {
-	GetUnicodeEmojisDataUrl() string
+	GetUnicodeEmojisDataUrl(version float64) string
 	GetUnicodeAnnotationsUrl() string
 }
 
-type UnicodeDataUrlProvider struct {
-	Version float64
-}
+type UnicodeDataUrlProvider struct{}
 
-func (p UnicodeDataUrlProvider) GetUnicodeEmojisDataUrl() string {
-	formattedVersion := fmt.Sprintf("%.1f", p.Version)
+func (p UnicodeDataUrlProvider) GetUnicodeEmojisDataUrl(version float64) string {
+	formattedVersion := fmt.Sprintf("%.1f", version)
 
 	url := "https://unicode.org/Public/emoji/%v/emoji-test.txt"
 
-	if p.Version == 0.0 {
+	if version == 0.0 {
 		return fmt.Sprintf(url, "latest")
 	}
 

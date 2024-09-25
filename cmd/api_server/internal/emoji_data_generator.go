@@ -17,7 +17,13 @@ const (
 	FULLY_QUALIFIED = "fully-qualified"
 )
 
-type EmojiDataGenerator struct{}
+type Generator interface {
+	Generate() map[string][]Emoji
+}
+
+type EmojiDataGenerator struct {
+	UrlProvider providers.DataUrlProvider
+}
 
 type AnnotationsFile struct {
 	Annotations struct {
@@ -54,9 +60,9 @@ func fetchEmojiDataFile(url string) (*http.Response, error) {
 	return emojisResponse, nil
 }
 
-func (g EmojiDataGenerator) Generate(urlProvider providers.DataUrlProvider) (map[string][]Emoji, error) {
-	annotations := parsers.ParseAnnotations(urlProvider)
-	emojiDataFileResponse, fetchErr := fetchEmojiDataFile(urlProvider.GetUnicodeEmojisDataUrl())
+func (g EmojiDataGenerator) Generate(version float64) (map[string][]Emoji, error) {
+	annotations := parsers.ParseAnnotations(g.UrlProvider)
+	emojiDataFileResponse, fetchErr := fetchEmojiDataFile(g.UrlProvider.GetUnicodeEmojisDataUrl(version))
 
 	if len(annotations) == 0 || fetchErr != nil {
 		log.Println(fetchErr.Error())

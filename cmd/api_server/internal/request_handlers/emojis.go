@@ -44,11 +44,11 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			version = requestBody.Version
 		}
 
-		urlProvider := providers.UnicodeDataUrlProvider{
-			Version: version,
+		urlProvider := providers.UnicodeDataUrlProvider{}
+		emojiDataGenerator := data_generation.EmojiDataGenerator{
+			UrlProvider: urlProvider,
 		}
-		emojiDataGenerator := data_generation.EmojiDataGenerator{}
-		emojis, err := emojiDataGenerator.Generate(urlProvider)
+		emojis, err := emojiDataGenerator.Generate(version)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
