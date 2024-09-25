@@ -160,6 +160,44 @@ func Test_Generate_SetsName_WithFirstNameFromAnnotations(t *testing.T) {
 	}
 }
 
+func Test_Generate_SetsName_FromEmojiData_WhenAnnotationsAreMissing(t *testing.T) {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: group1
+1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face`))
+		}
+
+		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😝": {
+						"default": ["one"],
+						"tts": ["tongue face"]
+									}
+								}
+					}
+		}
+`))
+		}
+	}))
+
+	defer mockHttpServer.Close()
+
+	emojiDataGenerator := EmojiDataGenerator{}
+	emojis, _ := emojiDataGenerator.Generate(test_helpers.MockDataUrlProvider{
+		BaseUrl: mockHttpServer.URL,
+	})
+	emoji := emojis["group1"][0]
+
+	if emoji.Name != "grinning face" {
+		t.Errorf("Failed to parse emoji name. Received %v, expected grinning face", emoji.Name)
+	}
+}
+
 func Test_Generate_SelectsFullyQualifiedEmojis(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
