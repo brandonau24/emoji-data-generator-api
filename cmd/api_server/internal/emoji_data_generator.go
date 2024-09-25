@@ -56,22 +56,17 @@ func fetchEmojiDataFile(url string) (*http.Response, error) {
 
 func (g EmojiDataGenerator) Generate(urlProvider providers.DataUrlProvider) (map[string][]Emoji, error) {
 	annotations := parsers.ParseAnnotations(urlProvider)
-
-	if len(annotations) == 0 {
-		return nil, fmt.Errorf("could not get unicode annotations")
-	}
-
-	var currentGroup string
-
-	emojis := make(map[string][]Emoji, 0)
-
 	emojiDataFileResponse, fetchErr := fetchEmojiDataFile(urlProvider.GetUnicodeEmojisDataUrl())
 
-	if fetchErr != nil {
-		return nil, fetchErr
+	if len(annotations) == 0 || fetchErr != nil {
+		log.Println(fetchErr.Error())
+		return nil, fmt.Errorf("could not get unicode data")
 	}
 
 	defer emojiDataFileResponse.Body.Close()
+	var currentGroup string
+
+	emojis := make(map[string][]Emoji, 0)
 
 	scanner := bufio.NewScanner(emojiDataFileResponse.Body)
 
