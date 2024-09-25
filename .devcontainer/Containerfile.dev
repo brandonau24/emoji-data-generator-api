@@ -1,9 +1,0 @@
-FROM mcr.microsoft.com/devcontainers/go:1.23
-
-RUN mkdir /emoji-data-generator
-
-WORKDIR /emoji-data-generator
-
-RUN chown -R vscode:vscode /emoji-data-generator
-
-USER vscode

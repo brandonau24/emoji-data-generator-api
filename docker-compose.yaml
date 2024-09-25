@@ -1,9 +1,8 @@
-version: '3'
 services:
   emoji-data-generator-api:
     build:
       context: .
-      dockerfile: Containerfile
+      dockerfile: Dockerfile
     container_name: emoji-data-generator-api
     image: emoji-data-generator-api
     ports:
