@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestParseCodepoint(t *testing.T) {
+func Test_ParseCodepoint(t *testing.T) {
 	emojiFields := []string{"1F600", ";", "fully-qualified", "#", "😀", "E1.0", "grinning face"}
 
 	codepoints := ParseCodepoints(emojiFields)
@@ -14,7 +14,7 @@ func TestParseCodepoint(t *testing.T) {
 	}
 }
 
-func TestParseCodepoints(t *testing.T) {
+func Test_ParseCodepoints(t *testing.T) {
 	emojiFields := []string{"1F636", "200D", "1F32B", "FE0F", ";", "fully-qualified", "#", "😶‍🌫️", "E13.1", "face", "in", "clouds"}
 
 	codepoints := ParseCodepoints(emojiFields)
@@ -24,7 +24,7 @@ func TestParseCodepoints(t *testing.T) {
 	}
 }
 
-func TestParseEmojiName(t *testing.T) {
+func Test_ParseEmojiName(t *testing.T) {
 	emojiFields := []string{"1F600", ";", "fully-qualified", "#", "😀", "E1.0", "grinning face"}
 
 	name := ParseEmojiName(emojiFields)
@@ -34,7 +34,7 @@ func TestParseEmojiName(t *testing.T) {
 	}
 }
 
-func TestParseEmojiCharacter(t *testing.T) {
+func Test_ParseEmojiCharacter(t *testing.T) {
 	emojiFields := []string{"1F600", ";", "fully-qualified", "#", "😀", "E1.0", "grinning face"}
 
 	character := ParseEmojiCharacter(emojiFields)

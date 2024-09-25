@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestGetUnicodeEmojisDataUrlWithoutVersion(t *testing.T) {
+func Test_GetUnicodeEmojisDataUrl_WithoutVersion_ReturnsLatest(t *testing.T) {
 	urlProvider := UnicodeDataUrlProvider{}
 
 	url := urlProvider.GetUnicodeEmojisDataUrl()
@@ -16,7 +16,7 @@ func TestGetUnicodeEmojisDataUrlWithoutVersion(t *testing.T) {
 	}
 }
 
-func TestGetUnicodeEmojisDataUrlWithVersion(t *testing.T) {
+func Test_GetUnicodeEmojisDataUrl_WithVersion(t *testing.T) {
 	version := "15.0"
 	urlProvider := UnicodeDataUrlProvider{
 		Version: 15.0,
@@ -30,7 +30,7 @@ func TestGetUnicodeEmojisDataUrlWithVersion(t *testing.T) {
 	}
 }
 
-func TestGetUnicodeEmojisDataUrlTruncatesVersionToOneDecimalPlace(t *testing.T) {
+func Test_GetUnicodeEmojisDataUrl_TruncatesVersionToOneDecimalPlace(t *testing.T) {
 	var version float64
 	version = 15.11
 

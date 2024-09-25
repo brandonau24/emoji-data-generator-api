@@ -9,7 +9,7 @@ import (
 	test_helpers "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/internal"
 )
 
-func TestParseAnnotations(t *testing.T) {
+func Test_ParseAnnotations(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -53,5 +53,24 @@ func TestParseAnnotations(t *testing.T) {
 
 	if emojiAnnotations.Tts[0] != "grinning face" {
 		t.Errorf("Failed to map tts. Received %v, expected \"grinning face\"", emojiAnnotations.Tts)
+	}
+}
+
+func Test_ParseAnnotations_ReturnsNil_WhenRequestFails(t *testing.T) {
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(""))
+		}
+	}))
+
+	defer mockHttpServer.Close()
+
+	annotations := ParseAnnotations(test_helpers.MockDataUrlProvider{
+		BaseUrl: mockHttpServer.URL,
+	})
+
+	if annotations != nil {
+		t.Errorf("Expected no annotations returned when annotations request fails. Received %v", annotations)
 	}
 }

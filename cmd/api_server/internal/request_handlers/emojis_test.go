@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestApiOnlyAcceptsGetRequest(t *testing.T) {
+func Test_Api_OnlyAcceptsGetRequest(t *testing.T) {
 	unallowedHttpMethods := []string{http.MethodConnect, http.MethodDelete, http.MethodPost, http.MethodHead, http.MethodPatch, http.MethodDelete, http.MethodPut, http.MethodTrace}
 	emojiHandler := EmojisHandler{}
 
@@ -26,6 +26,7 @@ func TestApiOnlyAcceptsGetRequest(t *testing.T) {
 	}
 }
 
+// TODO: This is more of an integration/end-to-end test since it is testing the real connection without mocks. Need to move it to a health check
 // func TestApiAllowsEmptyRequestBody(t *testing.T) {
 // 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 // 	responseRecorder := httptest.NewRecorder()
@@ -41,7 +42,7 @@ func TestApiOnlyAcceptsGetRequest(t *testing.T) {
 // 	}
 // }
 
-func TestApiRejectsNonNumberVersion(t *testing.T) {
+func Test_Api_RejectsNonNumberVersion(t *testing.T) {
 	requestBody := strings.NewReader(`
 {
 	"version": "abc"
@@ -62,7 +63,7 @@ func TestApiRejectsNonNumberVersion(t *testing.T) {
 	}
 }
 
-func TestApiRejectsInvalidJson(t *testing.T) {
+func Test_Api_RejectsInvalidJson(t *testing.T) {
 	requestBody := strings.NewReader(`
 	{
 		"version": 12.0

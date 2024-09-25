@@ -9,7 +9,7 @@ import (
 	test_helpers "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/internal"
 )
 
-func TestParseEmojisSkipsComments(t *testing.T) {
+func Test_Generate_SkipsComments(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -46,7 +46,7 @@ func TestParseEmojisSkipsComments(t *testing.T) {
 	}
 }
 
-func TestParseEmojisSetsCodepoint(t *testing.T) {
+func Test_Generate_SetsCodepoint(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -84,7 +84,7 @@ func TestParseEmojisSetsCodepoint(t *testing.T) {
 	}
 }
 
-func TestParseEmojisSetsCodepoints(t *testing.T) {
+func Test_Generate_SetsCodepoints(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -122,7 +122,7 @@ func TestParseEmojisSetsCodepoints(t *testing.T) {
 	}
 }
 
-func TestParseEmojisSetsNameWithFirstNameFromTtsList(t *testing.T) {
+func Test_Generate_SetsName_WithFirstNameFromAnnotations(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -160,7 +160,7 @@ func TestParseEmojisSetsNameWithFirstNameFromTtsList(t *testing.T) {
 	}
 }
 
-func TestParseEmojiSelectsFullyQualifiedEmojis(t *testing.T) {
+func Test_Generate_SelectsFullyQualifiedEmojis(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -201,7 +201,7 @@ F636 200D 1F32B FE0F                                  ; fully-qualified     # ðŸ
 	}
 }
 
-func TestParseEmojisGroupsEmojis(t *testing.T) {
+func Test_Generate_GroupsEmojis(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -262,7 +262,7 @@ func TestParseEmojisGroupsEmojis(t *testing.T) {
 	}
 }
 
-func TestParseEmojisSetsAnnotations(t *testing.T) {
+func Test_Generate_SetsAnnotations(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -332,7 +332,7 @@ func TestParseEmojisSetsAnnotations(t *testing.T) {
 	}
 }
 
-func TestParseEmojisSetsCharacter(t *testing.T) {
+func Test_Generate_SetsCharacter(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusOK)
@@ -379,7 +379,7 @@ func TestParseEmojisSetsCharacter(t *testing.T) {
 	}
 }
 
-func TestFetchEmojiDataFileFails(t *testing.T) {
+func Test_Generatate_EmojiDataFetchFails(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusBadRequest)
@@ -415,7 +415,7 @@ func TestFetchEmojiDataFileFails(t *testing.T) {
 	}
 }
 
-func TestEmptyAnnotationsReturnsError(t *testing.T) {
+func Test_Generate_EmptyAnnotations(t *testing.T) {
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
 			w.WriteHeader(http.StatusBadRequest)
