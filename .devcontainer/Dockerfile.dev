@@ -1,7 +1,3 @@
 FROM mcr.microsoft.com/devcontainers/go:1.23
 
-RUN mkdir /emoji-data-generator
-
 ENV TZ="America/New_York"
-
-WORKDIR /emoji-data-generator

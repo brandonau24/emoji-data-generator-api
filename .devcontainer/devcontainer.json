@@ -18,9 +18,9 @@
 		}
 	},
 	"runArgs": [
-		"--volume=${localWorkspaceFolder}:/${localWorkspaceFolderBasename}:Z",
+		"--volume=${localWorkspaceFolder}:${localWorkspaceFolder}",
 		"--name=${localWorkspaceFolderBasename}_devcontainer"
 	],
-	"workspaceFolder": "/${localWorkspaceFolderBasename}",
-	"postStartCommand": "/${localWorkspaceFolderBasename}/devcontainer_init.sh"
+	"workspaceFolder": "${localWorkspaceFolder}",
+	"postStartCommand": "chown -R vscode:vscode ${localWorkspaceFolder} && ${localWorkspaceFolder}/devcontainer_init.sh"
 }
