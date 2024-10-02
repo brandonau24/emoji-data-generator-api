@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/request_handlers"
+	"github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/request_handlers"
 )
 
 func main() {

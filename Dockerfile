@@ -1,6 +1,6 @@
 FROM docker.io/library/golang:1.23 AS build
 
-WORKDIR /emoji-data-generator
+WORKDIR /emoji-data-generator-api
 
 COPY . ./
 

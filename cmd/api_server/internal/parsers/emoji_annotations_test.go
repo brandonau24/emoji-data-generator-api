@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	test_helpers "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/internal"
+	test_helpers "github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/internal"
 )
 
 func Test_ParseAnnotations(t *testing.T) {

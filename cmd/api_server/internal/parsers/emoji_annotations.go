@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
+	"github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/providers"
 )
 
 type AnnotationsFile struct {

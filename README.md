@@ -1,5 +1,5 @@
-# emoji-data-generator
-emoji-data-generator is a small GET API endpoint to return Unicode Emoji data. This takes the Unicode emoji text file and the CLDR annotations and maps each emoji to its codepoint(s), character, name, and search terms.
+# emoji-data-generator-api
+emoji-data-generator-api is a small GET API endpoint to return Unicode Emoji data. This takes the Unicode emoji text file and the CLDR annotations and maps each emoji to its codepoint(s), character, name, and search terms.
 
 An example of the data is:
 ```json

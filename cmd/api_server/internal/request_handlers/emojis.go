@@ -9,8 +9,8 @@ import (
 	"log"
 	"net/http"
 
-	data_generation "github.com/brandonau24/emoji-data-generator/cmd/api_server/internal"
-	"github.com/brandonau24/emoji-data-generator/cmd/api_server/internal/providers"
+	data_generation "github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal"
+	"github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/providers"
 )
 
 type EmojisHandler struct{}

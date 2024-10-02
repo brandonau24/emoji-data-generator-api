@@ -16,6 +16,6 @@ jobs:
           - name: Build API Server
             uses: devcontainers/ci@v0.3
             with:
-              imageName: emoji-data-generator_ci_build
+              imageName: emoji-data-generator-api_ci_build
               push: never
               runCmd: CGO_ENABLED=0 GOOS=linux go build ./cmd/api_server/main.go

@@ -16,6 +16,6 @@ jobs:
           - name: Run Unit Tests
             uses: devcontainers/ci@v0.3
             with:
-              imageName: emoji-data-generator_ci_unit_tests
+              imageName: emoji-data-generator-api_ci_unit_tests
               push: never
               runCmd: go test ./...
