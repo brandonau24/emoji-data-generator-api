@@ -410,6 +410,63 @@ func Test_Generate_SetsAnnotations(t *testing.T) {
 	}
 }
 
+func Test_Generate_SetsAnnotationsToNull_WhenItDoesNotExist(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockEmojiPath {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`# group: Smileys & Emotion
+1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
+1F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
+1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
+`))
+		}
+
+		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`
+{
+	"annotations": {
+		"annotations": {
+			"😀": {
+					"default": [
+						"face",
+						"grin",
+						"grinning face"
+					],
+					"tts": [
+						"grinning face"
+					]
+				}
+		}
+	}
+}
+`))
+		}
+	}))
+
+	defer mockHttpServer.Close()
+
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	emojis, _ := emojiDataGenerator.Generate(version)
+
+	smileyAndEmotionsGroup, ok := emojis["Smileys & Emotion"]
+	if !ok {
+		t.Errorf("Could not parse Smileys & Emotion group")
+	}
+
+	faceInCloudEmojiAnnotations := smileyAndEmotionsGroup[1].Annotations
+	if faceInCloudEmojiAnnotations != nil {
+		t.Errorf("Annotations do not exist, but received non-null value: %v", faceInCloudEmojiAnnotations)
+	}
+}
+
 func Test_Generate_SetsCharacter(t *testing.T) {
 	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
 	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
