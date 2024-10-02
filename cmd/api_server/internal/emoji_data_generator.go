@@ -122,5 +122,9 @@ func (g EmojiDataGenerator) Generate(version float64) (map[string][]Emoji, error
 
 	}
 
+	if len(emojis) == 0 {
+		return nil, fmt.Errorf("could not generate emoji data")
+	}
+
 	return emojis, nil
 }

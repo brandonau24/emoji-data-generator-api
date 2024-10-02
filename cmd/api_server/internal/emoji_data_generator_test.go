@@ -560,6 +560,47 @@ func Test_Generatate_EmojiDataFetchFails(t *testing.T) {
 	}
 }
 
+func Test_Generate_EmojiDataResponseIsEmpty(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
+	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == mockEmojiPath {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(""))
+		}
+
+		if r.URL.Path == test_helpers.MOCK_UNICODE_ANNOTATIONS_PATH {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`
+		{
+			"annotations": {
+				"annotations": {
+					"😀": {
+						"default": ["one"],
+						"tts": ["grinning face"]
+									}
+								}
+					}
+		}
+`))
+		}
+	}))
+
+	defer mockHttpServer.Close()
+
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
+	emojiDataGenerator := EmojiDataGenerator{
+		UrlProvider: mockDataUrlProvider,
+	}
+	_, err := emojiDataGenerator.Generate(version)
+
+	if err == nil {
+		t.Errorf("Expected generator to return error on an empty request")
+	}
+}
+
 func Test_Generate_EmptyAnnotations(t *testing.T) {
 	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
 	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
