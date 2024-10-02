@@ -12,8 +12,11 @@ import (
 const version = 1.0
 
 func Test_Generate_SkipsComments(t *testing.T) {
+	mockDataUrlProvider := test_helpers.MockDataUrlProvider{}
+	mockEmojiPath := mockDataUrlProvider.BuildUrlPath(version)
+
 	mockHttpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == test_helpers.MOCK_UNICODE_EMOJIS_PATH {
+		if r.URL.Path == mockEmojiPath {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`# This is a comment
 # This is another comment
@@ -39,9 +42,7 @@ func Test_Generate_SkipsComments(t *testing.T) {
 	defer mockHttpServer.Close()
 
 	emojiDataGenerator := EmojiDataGenerator{
-		UrlProvider: test_helpers.MockDataUrlProvider{
-			BaseUrl: mockHttpServer.URL,
-		},
+		UrlProvider: mockDataUrlProvider,
 	}
 	emojis, _ := emojiDataGenerator.Generate(1.0)
 
@@ -82,9 +83,7 @@ func Test_Generate_SetsCodepoint(t *testing.T) {
 	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
 
 	emojiDataGenerator := EmojiDataGenerator{
-		UrlProvider: test_helpers.MockDataUrlProvider{
-			BaseUrl: mockHttpServer.URL,
-		},
+		UrlProvider: mockDataUrlProvider,
 	}
 	emojis, _ := emojiDataGenerator.Generate(version)
 	emoji := emojis["group1"][0]
