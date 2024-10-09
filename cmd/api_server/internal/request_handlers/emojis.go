@@ -51,8 +51,7 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		emojis, err := emojiDataGenerator.Generate(version)
 
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
 		}
@@ -62,12 +61,18 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if encodeError == nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(buffer.Bytes())
+
+			return
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("500 - Could not parse emoji data"))
+			http.Error(w, "Could not parse emoji data", http.StatusInternalServerError)
+
+			return
 		}
 	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte(fmt.Sprintf("%v request not allowed", r.Method)))
+		methodNotAllowedErrorMessage := fmt.Sprintf("%v request not allowed", r.Method)
+
+		http.Error(w, methodNotAllowedErrorMessage, http.StatusMethodNotAllowed)
+
+		return
 	}
 }
