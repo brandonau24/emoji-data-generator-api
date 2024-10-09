@@ -3,7 +3,6 @@ package request_handlers
 import (
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
@@ -43,35 +42,7 @@ func Test_Api_OnlyAcceptsGetRequest(t *testing.T) {
 // }
 
 func Test_Api_RejectsNonNumberVersion(t *testing.T) {
-	requestBody := strings.NewReader(`
-{
-	"version": "abc"
-}
-	`)
-
-	request := httptest.NewRequest(http.MethodGet, "/", requestBody)
-	responseRecorder := httptest.NewRecorder()
-
-	emojiHandler := EmojisHandler{}
-	emojiHandler.ServeHTTP(responseRecorder, request)
-
-	response := responseRecorder.Result()
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusBadRequest {
-		t.Errorf("Expected 400 status code, received %v", response.StatusCode)
-	}
-}
-
-func Test_Api_RejectsInvalidJson(t *testing.T) {
-	requestBody := strings.NewReader(`
-	{
-		"version": 12.0
-}
-	}
-		`)
-
-	request := httptest.NewRequest(http.MethodGet, "/", requestBody)
+	request := httptest.NewRequest(http.MethodGet, "/?unicode_version=abcdef", nil)
 	responseRecorder := httptest.NewRecorder()
 
 	emojiHandler := EmojisHandler{}

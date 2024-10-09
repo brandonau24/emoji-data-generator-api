@@ -5,9 +5,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
+	"strconv"
 
 	data_generation "github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal"
 	"github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/providers"
@@ -25,23 +24,14 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		encoder := json.NewEncoder(&buffer)
 		encoder.SetEscapeHTML(false)
 
-		defer r.Body.Close()
-		requestBodyBytes, _ := io.ReadAll(r.Body)
+		queryParams := r.URL.Query()
+		unicodeVersion := queryParams.Get("unicode_version")
+		version, parseErr := strconv.ParseFloat(unicodeVersion, 32)
 
-		var version float64
-		if len(requestBodyBytes) > 0 {
-			var requestBody EmojisRequestBody
-			jsonErr := json.Unmarshal(requestBodyBytes, &requestBody)
+		if unicodeVersion != "" && parseErr != nil {
+			http.Error(w, fmt.Sprintf("\"%v\" is not a valid Unicode version", unicodeVersion), http.StatusBadRequest)
 
-			if jsonErr != nil {
-				log.Println(jsonErr.Error())
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("Request body contains Invalid JSON"))
-
-				return
-			}
-
-			version = requestBody.Version
+			return
 		}
 
 		urlProvider := providers.UnicodeDataUrlProvider{}
