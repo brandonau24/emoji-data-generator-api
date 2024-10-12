@@ -22,5 +22,5 @@
 		"--name=${localWorkspaceFolderBasename}_devcontainer"
 	],
 	"workspaceFolder": "${localWorkspaceFolder}",
-	"postStartCommand": "chown -R vscode:vscode ${localWorkspaceFolder} && ${localWorkspaceFolder}/devcontainer_init.sh"
+	"postStartCommand": "sudo chown -R vscode:vscode ${localWorkspaceFolder} && ${localWorkspaceFolder}/devcontainer_init.sh"
 }
