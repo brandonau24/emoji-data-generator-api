@@ -5,7 +5,16 @@
 	"features": {
 		"ghcr.io/devcontainers/features/go:1": {
 			"version": "1.23"
-		}
+		},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/localstack/devcontainer-feature/localstack-cli:latest": {
+			"version": "latest",
+			"awslocal": true
+		   },
+		   "ghcr.io/devcontainers/features/aws-cli:1": {}
+	},
+	"containerEnv": {
+		"LOCALSTACK_AUTH_TOKEN": "${localEnv:LOCALSTACK_AUTH_TOKEN}"
 	},
 	"customizations": {
 		"vscode": {
@@ -19,6 +28,7 @@
 	},
 	"runArgs": [
 		"--volume=${localWorkspaceFolder}:${localWorkspaceFolder}",
+		"--volume=/var/run/docker.sock:/var/run/docker.sock",
 		"--name=${localWorkspaceFolderBasename}_devcontainer"
 	],
 	"workspaceFolder": "${localWorkspaceFolder}",
