@@ -4,6 +4,7 @@ package data_generation
 import (
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	test_helpers "github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/internal"
@@ -399,13 +400,13 @@ func Test_Generate_SetsAnnotations(t *testing.T) {
 	}
 
 	smileyEmoji := smileyAndEmotionsGroup[0]
-	if !test_helpers.AreAnnotationsEqual(smileyEmoji.Annotations, smileyAnnotations) {
+	if !reflect.DeepEqual(smileyEmoji.Annotations, smileyAnnotations) {
 		t.Errorf("Failed to map annotations. Received %v, expected %v", smileyEmoji.Annotations, smileyAnnotations)
 	}
 
 	faceCloudAnnotations := []string{"absentminded", "face in clouds", "face in the fog", "head in clouds"}
 	faceInCloudEmoji := smileyAndEmotionsGroup[1]
-	if !test_helpers.AreAnnotationsEqual(faceInCloudEmoji.Annotations, faceCloudAnnotations) {
+	if !reflect.DeepEqual(faceInCloudEmoji.Annotations, faceCloudAnnotations) {
 		t.Errorf("Failed to map annotations. Received %v, expected %v", faceInCloudEmoji.Annotations, faceCloudAnnotations)
 
 	}

@@ -4,6 +4,7 @@ package parsers
 import (
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	test_helpers "github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/internal"
@@ -47,7 +48,7 @@ func Test_ParseAnnotations(t *testing.T) {
 		t.Errorf("Failed to find annotations for 😀")
 	}
 
-	if !test_helpers.AreAnnotationsEqual(emojiAnnotations.Default, expectedAnnotations) {
+	if !reflect.DeepEqual(emojiAnnotations.Default, expectedAnnotations) {
 		t.Errorf("Failed to map annotations. Received %v, expected %v", emojiAnnotations, expectedAnnotations)
 	}
 
