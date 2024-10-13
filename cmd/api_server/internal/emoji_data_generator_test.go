@@ -41,6 +41,8 @@ func Test_Generate_SkipsComments(t *testing.T) {
 	}))
 	defer mockHttpServer.Close()
 
+	mockDataUrlProvider.BaseUrl = mockHttpServer.URL
+
 	emojiDataGenerator := EmojiDataGenerator{
 		UrlProvider: mockDataUrlProvider,
 	}
