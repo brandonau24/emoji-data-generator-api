@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -29,6 +30,7 @@ func (h *EmojisHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		version, parseErr := strconv.ParseFloat(unicodeVersion, 32)
 
 		if unicodeVersion != "" && parseErr != nil {
+			log.Println(parseErr.Error())
 			http.Error(w, fmt.Sprintf("\"%v\" is not a valid Unicode version", unicodeVersion), http.StatusBadRequest)
 
 			return
