@@ -21,9 +21,7 @@
 		"vscode": {
 			"extensions": [
 				"redhat.vscode-yaml",
-				"ms-azuretools.vscode-docker",
-				"github.vscode-github-actions",
-				"golang.go"
+				"github.vscode-github-actions"
 			]
 		}
 	},
