@@ -1,7 +1,8 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/go
 {
-	"dockerFile": "Dockerfile.dev",
+	"dockerComposeFile": "docker-compose.devcontainer.yaml",
+	"service": "devcontainer",
 	"features": {
 		"ghcr.io/devcontainers/features/go:1": {
 			"version": "1.23"
@@ -26,11 +27,6 @@
 			]
 		}
 	},
-	"runArgs": [
-		"--volume=${localWorkspaceFolder}:${localWorkspaceFolder}",
-		"--volume=/var/run/docker.sock:/var/run/docker.sock",
-		"--name=${localWorkspaceFolderBasename}_devcontainer"
-	],
-	"workspaceFolder": "${localWorkspaceFolder}",
-	"postStartCommand": "sudo chown -R vscode:vscode ${localWorkspaceFolder} && ${localWorkspaceFolder}/devcontainer_init.sh"
+	"workspaceFolder": "/workspace",
+	"postStartCommand": "sudo chown -R vscode:vscode ${containerWorkspaceFolder} && ${containerWorkspaceFolder}/devcontainer_init.sh"
 }

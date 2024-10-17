@@ -1,0 +1,20 @@
+services:
+
+  devcontainer:
+    container_name: emoji-data-generator-api_devcontainer
+    image: mcr.microsoft.com/devcontainers/go:1.23
+    environment:
+      - TZ=Americas/New_York
+
+    volumes:
+      - "..:/workspace:cached"
+
+    command: sleep infinity
+
+  localstack:
+    container_name: localstack-main
+    image: localstack/localstack:latest
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    command: sleep infinity
