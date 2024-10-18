@@ -10,8 +10,15 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/emoji-data-generator-api ./cmd/api
 
 FROM docker.io/library/alpine
 
-COPY --from=build /bin/emoji-data-generator-api /bin/emoji-data-generator-api
+RUN adduser -D nonroot
+WORKDIR /home/nonroot
+
+COPY --from=build /bin/emoji-data-generator-api .
+
+RUN chown -R nonroot:nonroot /home/nonroot
 
 EXPOSE 8080
 
-CMD ["/bin/emoji-data-generator-api"]
+USER nonroot
+
+CMD ["/home/nonroot/emoji-data-generator-api"]
