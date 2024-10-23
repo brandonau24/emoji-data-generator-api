@@ -18,4 +18,4 @@ jobs:
             with:
               imageName: emoji-data-generator-api_ci_unit_tests
               push: never
-              runCmd: go test ./...
+              runCmd: go test ./... -v -fullpath
