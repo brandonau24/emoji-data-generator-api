@@ -4,7 +4,7 @@ services:
     container_name: emoji-data-generator-api_devcontainer
     image: mcr.microsoft.com/devcontainers/go:1.23
     environment:
-      - TZ=Americas/New_York
+      - TZ=America/New_York
 
     volumes:
       - "..:/workspace:cached"
