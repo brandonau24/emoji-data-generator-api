@@ -1,27 +1,63 @@
 package request_handlers
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func Test_Api_OnlyAcceptsGetRequest(t *testing.T) {
-	unallowedHttpMethods := []string{http.MethodConnect, http.MethodDelete, http.MethodPost, http.MethodHead, http.MethodPatch, http.MethodDelete, http.MethodPut, http.MethodTrace}
-	emojiHandler := EmojisHandler{}
+func TestRequestHandler(t *testing.T) {
+	tests := map[string]string{
+		"rejects Connect": http.MethodConnect,
+		"rejects Delete":  http.MethodDelete,
+		"rejects Head":    http.MethodHead,
+		"rejects Patch":   http.MethodPatch,
+		"rejects Post":    http.MethodPost,
+		"rejects Put":     http.MethodPut,
+		"rejects Trace":   http.MethodTrace,
+	}
 
-	for _, method := range unallowedHttpMethods {
-		request := httptest.NewRequest(method, "/", nil)
-		responseRecorder := httptest.NewRecorder()
+	for name, httpMethod := range tests {
+		t.Run(name, func(t *testing.T) {
+			emojiHandler := EmojisHandler{}
 
-		emojiHandler.ServeHTTP(responseRecorder, request)
+			request := httptest.NewRequest(httpMethod, "/", nil)
+			responseRecorder := httptest.NewRecorder()
 
-		response := responseRecorder.Result()
-		defer response.Body.Close()
+			emojiHandler.ServeHTTP(responseRecorder, request)
 
-		if response.StatusCode != http.StatusMethodNotAllowed {
-			t.Errorf("Expected 405 status code, received %v", response.StatusCode)
-		}
+			response := responseRecorder.Result()
+			defer response.Body.Close()
+
+			if response.StatusCode != http.StatusMethodNotAllowed {
+				t.Errorf("Expected %v to respond with %v, got: %v", httpMethod, http.StatusMethodNotAllowed, response.StatusCode)
+			}
+		})
+	}
+}
+
+func TestRequestHandler_WithQueryParameters(t *testing.T) {
+	tests := map[string]string{
+		"rejects non-number version":                "abcdef",
+		"rejects mixed numbers and letters version": "12ab3cd456",
+	}
+
+	for name, queryParam := range tests {
+		t.Run(name, func(t *testing.T) {
+			request := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/?unicode_version=%v", queryParam), nil)
+			responseRecorder := httptest.NewRecorder()
+
+			emojiHandler := EmojisHandler{}
+			emojiHandler.ServeHTTP(responseRecorder, request)
+
+			response := responseRecorder.Result()
+			defer response.Body.Close()
+
+			if response.StatusCode != http.StatusBadRequest {
+				t.Errorf("Expected 400 status code, received %v", response.StatusCode)
+			}
+		})
 	}
 }
 
@@ -40,18 +76,3 @@ func Test_Api_OnlyAcceptsGetRequest(t *testing.T) {
 // 		t.Errorf("Expected 200 status code, received %v", response.StatusCode)
 // 	}
 // }
-
-func Test_Api_RejectsNonNumberVersion(t *testing.T) {
-	request := httptest.NewRequest(http.MethodGet, "/?unicode_version=abcdef", nil)
-	responseRecorder := httptest.NewRecorder()
-
-	emojiHandler := EmojisHandler{}
-	emojiHandler.ServeHTTP(responseRecorder, request)
-
-	response := responseRecorder.Result()
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusBadRequest {
-		t.Errorf("Expected 400 status code, received %v", response.StatusCode)
-	}
-}
