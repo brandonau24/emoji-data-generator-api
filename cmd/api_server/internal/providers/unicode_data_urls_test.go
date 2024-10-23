@@ -5,62 +5,46 @@ import (
 	"testing"
 )
 
-func Test_GetUnicodeEmojisDataUrl_WithVersion0_ReturnsLatest(t *testing.T) {
-	urlProvider := UnicodeDataUrlProvider{}
-
-	url := urlProvider.GetUnicodeEmojisDataUrl(0.0)
-
-	if !strings.Contains(url, "latest") {
-		t.Errorf("latest unicode version is not used for url when no version is provided. Got %v", url)
-
-	}
-}
-
-func Test_GetUnicodeEmojisDataUrl_WithVersion(t *testing.T) {
-	version := 15.0
-	urlProvider := UnicodeDataUrlProvider{}
-
-	url := urlProvider.GetUnicodeEmojisDataUrl(version)
-
-	if !strings.Contains(url, "15.0") {
-		t.Errorf("%v unicode version is not used for url when provided. Got %v", version, url)
-
-	}
-}
-
-func Test_GetUnicodeEmojisDataUrl_TruncatesVersionToOneDecimalPlace(t *testing.T) {
-	var version float64
-	version = 15.11
-
-	var urlProvider DataUrlProvider
-	urlProvider = UnicodeDataUrlProvider{}
-
-	var url string
-	url = urlProvider.GetUnicodeEmojisDataUrl(version)
-
-	if !strings.Contains(url, "/15.1/") {
-		t.Errorf("%v unicode version was not shortened. Got %v", version, url)
-
+func TestGetUnicodeEmojisDataUrl(t *testing.T) {
+	tests := map[string]struct {
+		version                float64
+		expectedUnicodeVersion string
+	}{
+		"sets unicode version to latest when input version is 0": {
+			version:                0,
+			expectedUnicodeVersion: "latest",
+		},
+		"sets unicode version based on input": {
+			version:                15.0,
+			expectedUnicodeVersion: "15.0",
+		},
+		"truncates input version to one decimal place": {
+			version:                15.11,
+			expectedUnicodeVersion: "15.1",
+		},
+		"rounds input version to one decimal place": {
+			version:                15.15,
+			expectedUnicodeVersion: "15.2",
+		},
+		"fixes input version 1 to one decimal place": {
+			version:                1,
+			expectedUnicodeVersion: "1.0",
+		},
+		"fixes input version 10 to one decimal place": {
+			version:                10,
+			expectedUnicodeVersion: "10.0",
+		},
 	}
 
-	version = 15.15
+	for name, testcase := range tests {
+		t.Run(name, func(t *testing.T) {
+			urlProvider := UnicodeDataUrlProvider{}
 
-	urlProvider = UnicodeDataUrlProvider{}
+			url := urlProvider.GetUnicodeEmojisDataUrl(testcase.version)
 
-	url = urlProvider.GetUnicodeEmojisDataUrl(version)
-
-	if !strings.Contains(url, "/15.2/") {
-		t.Errorf("%v unicode version was not shortened. Got %v", version, url)
-
-	}
-
-	version = 1
-	urlProvider = UnicodeDataUrlProvider{}
-
-	url = urlProvider.GetUnicodeEmojisDataUrl(version)
-
-	if !strings.Contains(url, "/1.0/") {
-		t.Errorf("%v unicode version was not shortened. Got %v", version, url)
-
+			if !strings.Contains(url, testcase.expectedUnicodeVersion) {
+				t.Errorf("%v: expected url to contain: %v, got: %v", name, testcase.expectedUnicodeVersion, url)
+			}
+		})
 	}
 }
