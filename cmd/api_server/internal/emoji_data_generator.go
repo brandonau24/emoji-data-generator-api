@@ -55,8 +55,8 @@ func fetchEmojiDataFile(url string, channel chan emojiDataFileResponseChannel, w
 		channel <- emojiDataFileResponseChannel{response: nil, fetchErr: fmt.Errorf("could not make connect to %v", url)}
 	} else if emojisResponse.StatusCode != http.StatusOK {
 		responseBytes, _ := io.ReadAll(emojisResponse.Body)
-		log.Printf("Emojis Data File - HTTP Status Code: %v", emojisResponse.StatusCode)
-		log.Printf("Emojis Data File - Response Body: %v", string(responseBytes))
+		log.Printf("Emojis Data File: %v - HTTP Status Code: %v", url, emojisResponse.StatusCode)
+		log.Printf("Emojis Data File: %v - Response Body: %v", url, string(responseBytes))
 
 		channel <- emojiDataFileResponseChannel{response: nil, fetchErr: fmt.Errorf("could not make successful request to %v", url)}
 	}

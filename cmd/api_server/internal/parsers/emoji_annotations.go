@@ -33,8 +33,8 @@ func fetchUnicodeAnnotations(url string) (*http.Response, error) {
 
 	if annotationsResponse.StatusCode != http.StatusOK {
 		responseBytes, _ := io.ReadAll(annotationsResponse.Body)
-		log.Printf("Unicode Annotations File - HTTP Status Code: %v", annotationsResponse.StatusCode)
-		log.Printf("Unicode Annotations File - Response Body: %v", string(responseBytes))
+		log.Printf("Unicode Annotations File: %v - HTTP Status Code: %v", url, annotationsResponse.StatusCode)
+		log.Printf("Unicode Annotations File: %v - Response Body: %v", url, string(responseBytes))
 
 		return nil, fmt.Errorf("could not make successful request to %v", url)
 	}
