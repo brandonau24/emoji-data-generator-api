@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"sync"
 	"testing"
 
 	test_helpers "github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/internal"
@@ -63,9 +64,16 @@ func TestParseAnnotations(t *testing.T) {
 
 			defer mockHttpServer.Close()
 
-			annotations := ParseAnnotations(test_helpers.MockDataUrlProvider{
+			var waitGroup sync.WaitGroup
+			annotationsChannel := make(chan map[string]Annotation)
+
+			go ParseAnnotations(test_helpers.MockDataUrlProvider{
 				BaseUrl: mockHttpServer.URL,
-			})
+			}, annotationsChannel, &waitGroup)
+
+			waitGroup.Wait()
+
+			annotations := <-annotationsChannel
 
 			if !reflect.DeepEqual(annotations, testcase.ExpectedAnnotations) {
 				t.Errorf("%v: expected: %v, got: %v", testcase.Name, testcase.ExpectedAnnotations, annotations)

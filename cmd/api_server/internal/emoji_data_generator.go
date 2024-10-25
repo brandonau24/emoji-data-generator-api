@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/parsers"
 	"github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/providers"
@@ -27,13 +28,8 @@ type EmojiDataGenerator struct {
 
 type AnnotationsFile struct {
 	Annotations struct {
-		Annotations map[string]Annotation
+		Annotations map[string]parsers.Annotation
 	}
-}
-
-type Annotation struct {
-	Default []string
-	Tts     []string
 }
 
 type Emoji struct {
@@ -43,38 +39,55 @@ type Emoji struct {
 	Name        string   `json:"name"`
 }
 
-func fetchEmojiDataFile(url string) (*http.Response, error) {
+type emojiDataFileResponseChannel struct {
+	response *http.Response
+	fetchErr error
+}
+
+func fetchEmojiDataFile(url string, channel chan emojiDataFileResponseChannel, waitGroup *sync.WaitGroup) {
+	defer waitGroup.Done()
+	waitGroup.Add(1)
+
 	emojisResponse, err := http.Get(url)
 
 	if err != nil {
 		log.Println(err.Error())
-		return nil, fmt.Errorf("could not make connect to %v", url)
+		channel <- emojiDataFileResponseChannel{response: nil, fetchErr: fmt.Errorf("could not make connect to %v", url)}
 	} else if emojisResponse.StatusCode != http.StatusOK {
 		responseBytes, _ := io.ReadAll(emojisResponse.Body)
 		log.Printf("Emojis Data File - HTTP Status Code: %v", emojisResponse.StatusCode)
 		log.Printf("Emojis Data File - Response Body: %v", string(responseBytes))
 
-		return nil, fmt.Errorf("could not make successful request to %v", url)
+		channel <- emojiDataFileResponseChannel{response: nil, fetchErr: fmt.Errorf("could not make successful request to %v", url)}
 	}
 
-	return emojisResponse, nil
+	channel <- emojiDataFileResponseChannel{response: emojisResponse, fetchErr: nil}
 }
 
 func (g EmojiDataGenerator) Generate(version float64) (map[string][]Emoji, error) {
-	annotations := parsers.ParseAnnotations(g.UrlProvider)
-	emojiDataFileResponse, fetchErr := fetchEmojiDataFile(g.UrlProvider.GetUnicodeEmojisDataUrl(version))
+	var waitGroup sync.WaitGroup
+	var annotationsChannel = make(chan map[string]parsers.Annotation)
+	var emojiDataFileResponseChannel = make(chan emojiDataFileResponseChannel)
 
-	if len(annotations) == 0 || fetchErr != nil {
-		log.Println(fetchErr.Error())
+	go parsers.ParseAnnotations(g.UrlProvider, annotationsChannel, &waitGroup)
+	go fetchEmojiDataFile(g.UrlProvider.GetUnicodeEmojisDataUrl(version), emojiDataFileResponseChannel, &waitGroup)
+
+	waitGroup.Wait()
+
+	annotations := <-annotationsChannel
+	emojiDataFileResponse := <-emojiDataFileResponseChannel
+
+	if len(annotations) == 0 || emojiDataFileResponse.fetchErr != nil {
+		log.Println(emojiDataFileResponse.fetchErr.Error())
 		return nil, fmt.Errorf("could not get unicode data")
 	}
 
-	defer emojiDataFileResponse.Body.Close()
+	defer emojiDataFileResponse.response.Body.Close()
 	var currentGroup string
 
 	emojis := make(map[string][]Emoji, 0)
 
-	scanner := bufio.NewScanner(emojiDataFileResponse.Body)
+	scanner := bufio.NewScanner(emojiDataFileResponse.response.Body)
 
 	for scanner.Scan() {
 		line := scanner.Text()

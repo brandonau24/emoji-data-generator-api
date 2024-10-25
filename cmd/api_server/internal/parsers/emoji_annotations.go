@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/brandonau24/emoji-data-generator-api/cmd/api_server/internal/providers"
 )
@@ -42,11 +43,16 @@ func fetchUnicodeAnnotations(url string) (*http.Response, error) {
 
 }
 
-func ParseAnnotations(p providers.DataUrlProvider) map[string]Annotation {
+func ParseAnnotations(p providers.DataUrlProvider, annotationsChannel chan map[string]Annotation, waitGroup *sync.WaitGroup) {
+	defer waitGroup.Done()
+	waitGroup.Add(1)
+
 	annotationsResponse, err := fetchUnicodeAnnotations(p.GetUnicodeAnnotationsUrl())
 
 	if err != nil {
-		return nil
+		annotationsChannel <- nil
+
+		return
 	}
 
 	defer annotationsResponse.Body.Close()
@@ -54,15 +60,19 @@ func ParseAnnotations(p providers.DataUrlProvider) map[string]Annotation {
 	annotationsResponseBody, readErr := io.ReadAll(annotationsResponse.Body)
 
 	if readErr != nil {
-		return nil
+		annotationsChannel <- nil
+
+		return
 	}
 
 	var annotationsFileMap AnnotationsFile
 	jsonErr := json.Unmarshal(annotationsResponseBody, &annotationsFileMap)
 
 	if jsonErr != nil {
-		return nil
+		annotationsChannel <- nil
+
+		return
 	}
 
-	return annotationsFileMap.Annotations.Annotations
+	annotationsChannel <- annotationsFileMap.Annotations.Annotations
 }
