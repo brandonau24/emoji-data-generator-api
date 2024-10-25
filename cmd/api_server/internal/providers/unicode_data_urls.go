@@ -22,5 +22,5 @@ func (p UnicodeDataUrlProvider) GetUnicodeEmojisDataUrl(version float64) string 
 }
 
 func (p UnicodeDataUrlProvider) GetUnicodeAnnotationsUrl() string {
-	return "https://raw.githubusercontent.com/unicode-org/cldr-json/refs/heads/main/cldr-json/cldr-annotations-modern/annotations/en/annotations.json"
+	return "https://raw.githubusercontent.com/unicode-org/cldr-json/refs/heads/main/cldr-json/cldr-annotations-full/annotations/en/annotations.json"
 }
