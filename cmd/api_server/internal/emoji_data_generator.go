@@ -78,7 +78,6 @@ func (g EmojiDataGenerator) Generate(version float64) (map[string][]Emoji, error
 	emojiDataFileResponse := <-emojiDataFileResponseChannel
 
 	if len(annotations) == 0 || emojiDataFileResponse.fetchErr != nil {
-		log.Println(emojiDataFileResponse.fetchErr.Error())
 		return nil, fmt.Errorf("could not get unicode data")
 	}
 
